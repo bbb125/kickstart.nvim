@@ -1,25 +1,4 @@
 --[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-========                                    .-----.          ========
-========         .----------------------.   | === |          ========
-========         |.-""""""""""""""""""-.|   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
-========         |'-..................-'|   |____o|          ========
-========         `"")----------------(""`   ___________      ========
-========        /::::::::::|  |::::::::::\  \ no mouse \     ========
-========       /:::========|  |==hjkl==:::\  \ required \    ========
-========      '""""""""""""'  '""""""""""""'  '""""""""""'   ========
-========                                                     ========
-=====================================================================
-=====================================================================
-
 What is Kickstart?
 
   Kickstart.nvim is *not* a distribution.
@@ -91,7 +70,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -109,7 +88,11 @@ vim.opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
-
+-- Set wide cursor in insert mode
+vim.opt.guicursor = 'n-v-c:block,i:block'
+-- Column ruller
+-- vim.opt.colorcolumn = '80,100,120'
+vim.opt.colorcolumn = '80'
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -161,12 +144,18 @@ vim.opt.scrolloff = 10
 -- See `:help 'confirm'`
 vim.opt.confirm = true
 
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.foldmethod = 'indent'
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
+-- Close tab
+vim.keymap.set('n', '<leader>w', ':tablose<CR>', { noremap = true, silent = true })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -179,6 +168,8 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
+-- open explorer
+vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -208,6 +199,26 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+if vim.g.neovide then
+  -- Put anything you want to happen only in Neovide here
+  -- Helper function for transparency formatting
+  local alpha = function()
+    return string.format('%x', math.floor(255 * vim.g.transparency or 0.8))
+  end
+  -- g:neovide_opacity should be 0 if you want to unify transparency of content and title bar.
+  -- vim.g.neovide_opacity = 0.0
+  vim.g.transparency = 0.9
+  vim.g.neovide_opacity = 0.8
+  vim.g.neovide_normal_opacity = 0.8
+  -- vim.g.neovide_background_color = '#0f1117' .. alpha()
+  vim.g.neovide_window_blurred = false
+  -- vim.g.neovide_title_text_color = 'pink'
+  vim.g.neovide_cursor_animation_length = 0 -- 0.150
+  -- Set GUI font (only takes effect in GUI frontends like Neovide or Goneovim)
+  --  vim.opt.guifont = 'Nerd Font:h12'
+  vim.opt.guifont = 'JetBrainsMono Nerd Font:h12'
+end
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -220,6 +231,45 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+-- Define a global function for the quickfix text formatting
+function _G.MyQuickfixTextFunc(info)
+  local items = vim.fn.getqflist()
+  local lines = {}
+  local last_file = nil
+  for _, item in ipairs(items) do
+    local file = ''
+    if not item.bufnr or item.bufnr == '' then
+      file = '[No Name]'
+    else
+      file = vim.fn.fnamemodify(item.bufnr, ':t')
+    end
+
+    local display_file = ''
+    if file ~= last_file then
+      display_file = file
+      last_file = file
+    end
+
+    local lnum = item.lnum or 0
+    local col = item.col or 0
+    local text = item.text or ''
+    table.insert(lines, string.format('%4d:%-3d\t%s', lnum, col, text))
+  end
+  return lines
+end
+
+vim.opt.quickfixtextfunc = 'v:lua.MyQuickfixTextFunc'
+
+-- Set the quickfix text function to use your Lua function
+vim.opt.quickfixtextfunc = 'v:lua.MyQuickfixTextFunc'
+
+-- Compute Server log files
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = { '*.out.its', 'out.its.*' },
+  callback = function()
+    vim.opt_local.filetype = 'log' -- Change "log" to "text" if needed.
+  end,
+})
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -233,7 +283,8 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  -- NOTE might be slow in large log files
+  -- 'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -340,7 +391,10 @@ require('lazy').setup({
       },
     },
   },
-
+  {
+    'nvim-tree/nvim-web-devicons',
+    opts = {},
+  },
   -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything
@@ -420,6 +474,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<C-P>', builtin.git_files, { desc = 'Git Files' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -763,10 +818,10 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -843,9 +898,9 @@ require('lazy').setup({
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -888,27 +943,73 @@ require('lazy').setup({
       }
     end,
   },
+  {
+    'rebelot/kanagawa.nvim',
+    config = function()
+      vim.cmd.colorscheme 'kanagawa'
+      vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
+      vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+      -- vim.api.nvim_set_hl(0, 'ColorColumn', { link = 'CursorLine' })
 
+      -- Make vertical column line darker and more transparant than CursorLine
+      local function darken_color(hex, factor)
+        local r = tonumber(hex:sub(2, 3), 16)
+        local g = tonumber(hex:sub(4, 5), 16)
+        local b = tonumber(hex:sub(6, 7), 16)
+        r = math.floor(r * factor)
+        g = math.floor(g * factor)
+        b = math.floor(b * factor)
+        return string.format('#%02x%02x%02x', r, g, b)
+      end
+      local cursorline = vim.api.nvim_get_hl_by_name('CursorLine', true)
+      if cursorline and cursorline.background then
+        local hex_bg = string.format('#%06x', cursorline.background)
+        local darkened_bg = darken_color(hex_bg, 0.5) -- darken by 50%
+        vim.api.nvim_set_hl(0, 'ColorColumn', { bg = darkened_bg, blend = 70 })
+      else
+        -- Fallback if CursorLine is not defined
+        vim.api.nvim_set_hl(0, 'ColorColumn', { bg = '#1b1b1b', blend = 70 })
+      end
+    end,
+  },
+  {
+    --   'sainnhe/everforest',
+    --   lazy = false,
+    --   priority = 1000,
+    --   config = function()
+    --     -- Optionally configure and load the colorscheme
+    --     -- directly inside the plugin declaration.
+    --     vim.g.everforest_enable_italic = true
+    --     vim.g.everforest_background = 'medium'
+    --     vim.g.everforest_ui_contrast = 'high'
+
+    --     vim.cmd [[
+    --       colorscheme everforest
+    --       set background=dark
+    --     ]]
+    --   end,
+  },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
-        },
-      }
 
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-    end,
+    --    'folke/tokyonight.nvim',
+    --    priority = 1000, -- Make sure to load this before all the other start plugins.
+    --    config = function()
+    --      ---@diagnostic disable-next-line: missing-fields
+    --      require('tokyonight').setup {
+    --        styles = {
+    --          comments = { italic = false }, -- Disable italics in comments
+    --        },
+    --      }
+    --
+    --      -- Load the colorscheme here.
+    --      -- Like many other themes, this one has different styles, and you could load
+    --      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+    --      vim.cmd.colorscheme 'tokyonight-night'
+    --    end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -938,7 +1039,6 @@ require('lazy').setup({
       local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
       statusline.setup { use_icons = vim.g.have_nerd_font }
-
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
@@ -957,7 +1057,23 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'javascript',
+        'python',
+        'rust',
+        'cpp',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -965,7 +1081,10 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = false,
+        disable = function(lang, buf)
+          return vim.api.nvim_buf_line_count(buf) > 10000
+        end,
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
@@ -975,6 +1094,66 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('nvim-tree').setup {
+        sort_by = 'modification_time',
+        actions = {
+          open_file = {
+            resize_window = false,
+          },
+        },
+      }
+    end,
+  },
+  {
+    'LunarVim/bigfile.nvim',
+    config = function()
+      require('bigfile').setup {
+        filesize = 10, -- in MiB
+        pattern = { '*.log', '*.out.its', 'out.its.*' }, -- optional: target log files specifically
+        features = {
+          'indent_blankline',
+          'illuminate',
+          'lsp',
+          'treesitter',
+          'syntax',
+          'matchparen',
+          'vimopts',
+          'filetype',
+        },
+      }
+    end,
+  },
+  {
+    'chentoast/marks.nvim',
+    event = 'VeryLazy',
+    opts = {},
+  },
+  {
+    'stevearc/oil.nvim',
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {
+      default_file_explorer = false,
+    },
+    -- Optional dependencies
+    --    dependencies = { { 'echasnovski/mini.icons', opts = {} } },
+    dependencies = { 'nvim-tree/nvim-web-devicons' }, -- use if you prefer nvim-web-devicons
+    -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+    lazy = false,
+  },
+  {
+    'akinsho/bufferline.nvim',
+    version = '*',
+    dependencies = 'nvim-tree/nvim-web-devicons',
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -989,9 +1168,9 @@ require('lazy').setup({
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
