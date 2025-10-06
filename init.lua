@@ -101,6 +101,7 @@ vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
 
+vim.opt.equalalways = false
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -146,7 +147,69 @@ vim.opt.confirm = true
 
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.foldmethod = 'indent'
+
+-- Use Tree-sitter as the folding engine
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+
+-- Reasonable default visibility
+vim.opt.foldenable = true
+vim.opt.foldlevel = 3
+vim.opt.foldlevelstart = 2
+-- vim.opt.foldminlines = 2
+vim.opt.foldnestmax = 6
+vim.opt.foldminlines = 1
+vim.opt.foldopen:append 'search' -- open when search lands inside
+
+-- Gutter & symbols (Nerd Font optional)
+vim.opt.foldcolumn = '1'
+vim.opt.fillchars:append {
+  fold = ' ',
+  foldopen = '', -- alternatives: v, -, 
+  foldclose = '', -- alternatives: >, +, 
+  eob = ' ',
+}
+
+-- Better foldtext: show first nonblank line + line count
+function _G.FoldText()
+  local fs, fe = vim.v.foldstart, vim.v.foldend
+  local line = vim.api.nvim_buf_get_lines(0, fs - 1, fs, false)[1] or ''
+  local indent = line:match '^%s*' or ''
+  local count = fe - fs + 1
+  line = line:gsub('^%s+', ''):gsub('\t', '  ')
+  return string.format('%s %s  … [%d lines]', indent, line, count)
+end
+vim.opt.foldtext = 'v:lua.FoldText()'
+
+vim.keymap.set('n', 'zp', function()
+  local fs, fe = vim.v.foldstart, vim.v.foldend
+  local lines = vim.api.nvim_buf_get_lines(0, fs - 1, fe, false)
+
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+  local width = math.floor(vim.o.columns * 0.6)
+  local height = math.min(#lines, math.floor(vim.o.lines * 0.4))
+  local opts = {
+    relative = 'editor',
+    width = width,
+    height = height,
+    col = math.floor((vim.o.columns - width) / 2),
+    row = math.floor((vim.o.lines - height) / 2),
+    style = 'minimal',
+    border = 'rounded',
+  }
+  vim.api.nvim_open_win(buf, true, opts)
+end, { desc = 'Peek fold in floating window' })
+
+-- Convenient toggles
+vim.keymap.set('n', '<space>', 'za', { desc = 'Toggle fold' })
+vim.keymap.set('n', 'zR', 'zR', { desc = 'Open all folds' })
+vim.keymap.set('n', 'zM', 'zM', { desc = 'Close all folds' })
+
+-- toggle folds with space
+vim.keymap.set('n', '<space>', 'za')
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -257,6 +320,12 @@ function _G.MyQuickfixTextFunc(info)
   end
   return lines
 end
+
+-- Indentation
+vim.opt.expandtab = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.smartindent = true
 
 vim.opt.quickfixtextfunc = 'v:lua.MyQuickfixTextFunc'
 
@@ -1087,6 +1156,8 @@ require('lazy').setup({
         end,
       },
       indent = { enable = true, disable = { 'ruby' } },
+      -- Treat files with filetype "c" as C++ for Tree-sitter
+      vim.treesitter.language.register('cpp', 'c'),
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
@@ -1105,6 +1176,11 @@ require('lazy').setup({
     config = function()
       require('nvim-tree').setup {
         sort_by = 'modification_time',
+        view = {
+          width = 25, -- default width in columns
+          side = 'left', -- keep default side
+          preserve_window_proportions = true, -- don't resize when opening files
+        },
         actions = {
           open_file = {
             resize_window = false,
