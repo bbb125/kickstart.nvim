@@ -203,12 +203,30 @@ vim.keymap.set('n', 'zp', function()
 end, { desc = 'Peek fold in floating window' })
 
 -- Convenient toggles
-vim.keymap.set('n', '<space>', 'za', { desc = 'Toggle fold' })
+--vim.keymap.set('n', '<CR>', 'za', { desc = 'Toggle fold' })
+vim.keymap.set('n', '<CR>', function()
+  -- Keep Enter working in quickfix/location-list
+  if vim.bo.buftype == 'quickfix' then
+    return '<CR>'
+  end
+
+  local l = vim.fn.line '.'
+  local fl = vim.fn.foldlevel(l)
+
+  -- If we're on a fold, toggle it
+  if fl > 0 then
+    if vim.fn.foldclosed(l) == -1 then
+      return 'zc' -- close
+    else
+      return 'zo' -- open
+    end
+  end
+
+  -- Otherwise keep Neovim's default <CR> in normal mode (same as "j")
+  return 'j'
+end, { expr = true, silent = true })
 vim.keymap.set('n', 'zR', 'zR', { desc = 'Open all folds' })
 vim.keymap.set('n', 'zM', 'zM', { desc = 'Close all folds' })
-
--- toggle folds with space
-vim.keymap.set('n', '<space>', 'za')
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -277,9 +295,12 @@ if vim.g.neovide then
   vim.g.neovide_window_blurred = false
   -- vim.g.neovide_title_text_color = 'pink'
   vim.g.neovide_cursor_animation_length = 0 -- 0.150
+  vim.g.neovide_scroll_animation_length = 0.1 -- try 0 or 0.10
+  vim.g.neovide_position_animation_length = 0.1 -- window movement/resizing
+
   -- Set GUI font (only takes effect in GUI frontends like Neovide or Goneovim)
   --  vim.opt.guifont = 'Nerd Font:h12'
-  vim.opt.guifont = 'JetBrainsMono Nerd Font:h12'
+  vim.opt.guifont = 'JetBrainsMono Nerd Font:h11'
 end
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -464,7 +485,21 @@ require('lazy').setup({
     'nvim-tree/nvim-web-devicons',
     opts = {},
   },
-  -- NOTE: Plugins can specify dependencies.
+  {
+    'letieu/jira.nvim',
+    opts = {
+      -- Your setup options...
+      jira = {
+        base = 'https://tsimagine.atlassian.net', -- Base URL of your Jira instance
+        email = 'vladimir.bayda@tsimagine.com', -- Your Jira email (Optional for PAT)
+        type = 'basic', -- Authentication type: "basic" (default) or "pat"
+        limit = 200, -- Global limit of tasks per view (default: 200)
+      },
+      queries = {
+        ['PBS Queue'] = 'project = PBS AND Status = "With Development" AND "DevTeam[Dropdown]" = RISK_CORE ORDER BY priority DESC',
+      },
+    },
+  }, -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything
   -- you do for a plugin at the top level, you can do for a dependency.
@@ -527,6 +562,15 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        defaults = {
+          layout_strategy = 'center',
+          layout_config = {
+            anchor = 'S',
+            height = 0.40,
+            width = 0.9,
+            preview_cutoff = 1,
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -800,6 +844,10 @@ require('lazy').setup({
         -- ts_ls = {},
         --
 
+        ocaml_ls = {
+          cmd = { 'ocamllsp' },
+          capabilities = require('cmp_nvim_lsp').default_capabilities(),
+        },
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -838,6 +886,7 @@ require('lazy').setup({
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
         automatic_installation = false,
+        automatic_enable = true,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -1120,6 +1169,53 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
+  {
+    'NickvanDyke/opencode.nvim',
+    dependencies = {
+      -- Recommended for `ask()` and `select()`.
+      -- Required for `snacks` provider.
+      ---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
+      { 'folke/snacks.nvim', opts = { input = {}, picker = {}, terminal = {} } },
+    },
+    config = function()
+      ---@type opencode.Opts
+      vim.g.opencode_opts = {
+        -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
+      }
+
+      -- Required for `opts.events.reload`.
+      vim.o.autoread = true
+
+      -- Recommended/example keymaps.
+      vim.keymap.set({ 'n', 'x' }, '<C-a>', function()
+        require('opencode').ask('@this: ', { submit = true })
+      end, { desc = 'Ask opencode' })
+      vim.keymap.set({ 'n', 'x' }, '<C-x>', function()
+        require('opencode').select()
+      end, { desc = 'Execute opencode action…' })
+      vim.keymap.set({ 'n', 't' }, '<C-.>', function()
+        require('opencode').toggle()
+      end, { desc = 'Toggle opencode' })
+
+      vim.keymap.set({ 'n', 'x' }, 'go', function()
+        return require('opencode').operator '@this '
+      end, { expr = true, desc = 'Add range to opencode' })
+      vim.keymap.set('n', 'goo', function()
+        return require('opencode').operator '@this ' .. '_'
+      end, { expr = true, desc = 'Add line to opencode' })
+
+      vim.keymap.set('n', '<S-C-u>', function()
+        require('opencode').command 'session.half.page.up'
+      end, { desc = 'opencode half page up' })
+      vim.keymap.set('n', '<S-C-d>', function()
+        require('opencode').command 'session.half.page.down'
+      end, { desc = 'opencode half page down' })
+
+      -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
+      vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
+      vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
+    end,
+  },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -1177,13 +1273,13 @@ require('lazy').setup({
       require('nvim-tree').setup {
         sort_by = 'modification_time',
         view = {
-          width = 25, -- default width in columns
+          width = 35, -- default width in columns
           side = 'left', -- keep default side
           preserve_window_proportions = true, -- don't resize when opening files
         },
         actions = {
           open_file = {
-            resize_window = false,
+            resize_window = true,
           },
         },
       }
@@ -1231,7 +1327,11 @@ require('lazy').setup({
     version = '*',
     dependencies = 'nvim-tree/nvim-web-devicons',
   },
-
+  {
+    'ocaml/ocaml-lsp',
+    'mfussenegger/nvim-dap',
+    'jay-babu/mason-nvim-dap.nvim',
+  },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
