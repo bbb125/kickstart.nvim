@@ -840,6 +840,8 @@ require('lazy').setup({
             '--completion-style=detailed',
             '--function-arg-placeholders',
             '--fallback-style=llvm',
+            -- Query the actual compiler from compile_commands.json for system includes
+            '--query-driver=/opt/homebrew/Cellar/llvm/*/bin/clang*,/opt/homebrew/Cellar/gcc/*/bin/g++-*,/opt/homebrew/bin/g++-*,/usr/bin/clang*,/usr/bin/g++*',
           },
           init_options = {
             usePlaceholders = true,
