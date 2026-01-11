@@ -145,12 +145,12 @@ vim.opt.scrolloff = 10
 -- See `:help 'confirm'`
 vim.opt.confirm = true
 
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
+-- Enable tags for ctags navigation
+vim.opt.tags = './tags,tags'
 
 -- Use Tree-sitter as the folding engine
 vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
 -- Reasonable default visibility
 vim.opt.foldenable = true
@@ -236,7 +236,7 @@ vim.keymap.set('n', 'zM', 'zM', { desc = 'Close all folds' })
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Close tab
-vim.keymap.set('n', '<leader>w', ':tablose<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>wc', ':tabclose<CR>', { desc = '[W]indow/tab [C]lose', noremap = true, silent = true })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -282,25 +282,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 if vim.g.neovide then
   -- Put anything you want to happen only in Neovide here
-  -- Helper function for transparency formatting
-  local alpha = function()
-    return string.format('%x', math.floor(255 * vim.g.transparency or 0.8))
-  end
-  -- g:neovide_opacity should be 0 if you want to unify transparency of content and title bar.
-  -- vim.g.neovide_opacity = 0.0
-  vim.g.transparency = 0.9
-  vim.g.neovide_opacity = 0.8
-  vim.g.neovide_normal_opacity = 0.8
-  -- vim.g.neovide_background_color = '#0f1117' .. alpha()
+  -- Transparency settings (use either neovide_transparency or neovide_opacity, not both)
+  vim.g.neovide_transparency = 0.8
   vim.g.neovide_window_blurred = false
-  -- vim.g.neovide_title_text_color = 'pink'
+
+  -- Animation settings
   vim.g.neovide_cursor_animation_length = 0 -- 0.150
   vim.g.neovide_scroll_animation_length = 0.1 -- try 0 or 0.10
   vim.g.neovide_position_animation_length = 0.1 -- window movement/resizing
 
   -- Set GUI font (only takes effect in GUI frontends like Neovide or Goneovim)
-  --  vim.opt.guifont = 'Nerd Font:h12'
-  vim.opt.guifont = 'JetBrainsMono Nerd Font:h11'
+  vim.opt.guifont = 'JetBrainsMono Nerd Font:h9'
 end
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -347,8 +339,6 @@ vim.opt.expandtab = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.smartindent = true
-
-vim.opt.quickfixtextfunc = 'v:lua.MyQuickfixTextFunc'
 
 -- Set the quickfix text function to use your Lua function
 vim.opt.quickfixtextfunc = 'v:lua.MyQuickfixTextFunc'
@@ -594,6 +584,8 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      vim.keymap.set('n', '<leader>st', builtin.tags, { desc = '[S]earch [T]ags' })
+      vim.keymap.set('n', '<leader>sct', builtin.current_buffer_tags, { desc = '[S]earch [C]urrent buffer [T]ags' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
@@ -864,7 +856,6 @@ require('lazy').setup({
 
         ocaml_ls = {
           cmd = { 'ocamllsp' },
-          capabilities = require('cmp_nvim_lsp').default_capabilities(),
         },
         lua_ls = {
           -- cmd = { ... },
@@ -896,6 +887,10 @@ require('lazy').setup({
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
+      -- Filter out servers that can't be installed via Mason (like ocaml_ls which uses opam)
+      ensure_installed = vim.tbl_filter(function(server)
+        return server ~= 'ocaml_ls'
+      end, ensure_installed)
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
       })
@@ -1298,9 +1293,14 @@ require('lazy').setup({
         end,
       },
       indent = { enable = true, disable = { 'ruby' } },
-      -- Treat files with filetype "c" as C++ for Tree-sitter
-      vim.treesitter.language.register('cpp', 'c'),
     },
+    config = function(_, opts)
+      -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+      require('nvim-treesitter.configs').setup(opts)
+
+      -- Treat files with filetype "c" as C++ for Tree-sitter
+      vim.treesitter.language.register('cpp', 'c')
+    end,
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
     --
@@ -1372,12 +1372,12 @@ require('lazy').setup({
     'akinsho/bufferline.nvim',
     version = '*',
     dependencies = 'nvim-tree/nvim-web-devicons',
+    opts = {},
   },
-  {
-    'ocaml/ocaml-lsp',
-    'mfussenegger/nvim-dap',
-    'jay-babu/mason-nvim-dap.nvim',
-  },
+  -- OCaml LSP is installed via opam, not as a Neovim plugin
+  -- Configuration is in the LSP servers section above
+  { 'mfussenegger/nvim-dap' },
+  { 'jay-babu/mason-nvim-dap.nvim' },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
