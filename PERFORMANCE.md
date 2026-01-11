@@ -172,3 +172,134 @@ split -l 1000000 huge_file.log chunk_  # 1M lines per file
 - 🎯 **Best practice**: Extract relevant sections with grep/sed first
 
 The configuration is now optimized to handle your massive log files efficiently!
+
+---
+
+## 🚀 FASTEST Solution: Minimal Mode
+
+### The Problem
+Even with optimizations, full config startup: **~0.17s** vs `nvim --clean`: **~0.02s**
+
+Your config loads many plugins (lazy.nvim, LSP, treesitter, etc.) which adds overhead even when disabled.
+
+### The Solution: minimal.lua
+
+A special config that **bypasses all plugins** for maximum speed:
+
+```bash
+# Use minimal config
+nvim -u ~/.config/nvim/minimal.lua huge_file.log
+
+# Or create alias (recommended)
+alias nf='nvim -u ~/.config/nvim/minimal.lua'
+nf huge_file.log  # Much faster!
+```
+
+### Performance Comparison
+
+| Method | Startup Time | vs Clean | Use Case |
+|--------|--------------|----------|----------|
+| `nvim --clean` | **0.02s** | 1x (baseline) | Absolute fastest, zero features |
+| `nvim -u minimal.lua` | **0.03s** | 1.5x | Fast + basic conveniences |
+| `nvim` (full config) | **0.17s** | 8.5x | Normal dev work |
+
+### What minimal.lua Includes
+
+✅ **Includes** (essential only):
+- Basic settings (no line numbers, cursorline, etc.)
+- Essential keymaps (Esc, Ctrl-d/u scrolling)
+- Undo file (crash recovery)
+- Leader key (`<Space>`)
+- Ripgrep integration (`<leader>g`)
+
+❌ **Excludes** (for speed):
+- All plugins (no lazy.nvim overhead)
+- LSP servers
+- Treesitter
+- Syntax highlighting
+- Completion
+- Git integration
+- UI enhancements
+
+### Recommended Setup
+
+**1. Install aliases** (add to `~/.zshrc` or `~/.bashrc`):
+
+```bash
+# Fast mode (minimal config)
+alias nf='nvim -u ~/.config/nvim/minimal.lua'
+
+# Clean mode (no config)
+alias nc='nvim --clean'
+```
+
+**2. Reload shell**:
+```bash
+source ~/.zshrc
+```
+
+**3. Use the right tool**:
+
+```bash
+# Gigabyte files (>500MB)
+nf huge_file.log              # Minimal mode - fastest with basics
+
+# Large files (10-500MB)
+nvim large_file.log           # Full config - auto-optimizes
+
+# Normal files (<10MB)
+nvim source_code.cpp          # Full config - all features
+```
+
+### Workflow for Your 1.4GB File
+
+**Option 1: Minimal Mode (Recommended)**
+```bash
+nf 20220928_125715_processDividends_EAST.log.SB1SYB4_DS.clientmlp.eod_mi2.20220929.out.its
+
+# In nvim:
+:12345678        # Jump to line
+<C-d>            # Fast scroll
+<leader>g        # Search with ripgrep (if installed)
+```
+
+**Option 2: Command-line Tools (Fastest)**
+```bash
+# View
+less huge_file.log
+
+# Search
+rg "pattern" huge_file.log
+
+# Extract then edit
+rg "ERROR" huge_file.log > errors.log
+nf errors.log    # Much smaller, faster
+```
+
+### Auto-Detection
+
+When you open files >500MB with full config, you'll see:
+```
+HUGE file detected (1400MB)!
+
+For faster loading, use:
+  nvim -u ~/.config/nvim/minimal.lua <file>
+
+Or add alias:
+  alias nf="nvim -u ~/.config/nvim/minimal.lua"
+```
+
+This reminds you to use minimal mode for better performance.
+
+## Summary: Choose Your Tool
+
+| File Size | Tool | Startup | Features | When to Use |
+|-----------|------|---------|----------|-------------|
+| **<10MB** | `nvim` | 0.17s | All | Normal development |
+| **10-100MB** | `nvim` | 0.17s | Auto-optimized | Large files, some features |
+| **100-500MB** | `nvim` | 0.17s | Heavy optimizations | Very large files |
+| **>500MB** | `nf` (minimal) | 0.03s | Basic only | Gigabyte files |
+| **Read-only** | `less`/`bat` | 0.01s | Viewing only | Just browsing |
+| **Searching** | `rg`/`grep` | N/A | None | Finding text |
+
+**For your 1.4GB file**: Use `nf` (minimal mode) for best experience! 🚀
