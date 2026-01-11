@@ -1,8 +1,8 @@
--- Ultra-minimal config for HUGE files
+-- Ultra-minimal config for HUGE files (>500MB)
 -- Usage: nvim -u ~/.config/nvim/minimal.lua huge_file.log
--- Or: alias nf='nvim -u ~/.config/nvim/minimal.lua'
+-- Recommended: alias nf='nvim -u ~/.config/nvim/minimal.lua'
 
--- Disable all built-in plugins for speed
+-- Disable all built-in plugins for maximum speed
 vim.g.loaded_gzip = 1
 vim.g.loaded_zip = 1
 vim.g.loaded_zipPlugin = 1
@@ -22,7 +22,7 @@ vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrwSettings = 1
 vim.g.loaded_netrwFileHandlers = 1
 
--- Ultra-minimal settings for huge files
+-- Ultra-minimal settings
 vim.opt.number = false
 vim.opt.relativenumber = false
 vim.opt.cursorline = false
@@ -36,17 +36,49 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.undofile = true
-vim.opt.syntax = 'off'
-vim.cmd 'filetype off'
-vim.cmd 'syntax off'
 
--- Minimal useful settings
+-- Useful settings
 vim.opt.scrolloff = 5
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.mouse = 'a'
+vim.opt.clipboard = 'unnamedplus'
 
--- Essential keymaps only
+-- Disable heavy features
+vim.cmd 'syntax off'
+vim.cmd 'filetype plugin indent off'
+
+-- Essential keymaps
 vim.g.mapleader = ' '
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.g.maplocalleader = ' '
 
-print('⚡ Minimal mode - optimized for huge files')
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { silent = true })
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { silent = true })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { silent = true })
+
+-- Window navigation
+vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move left' })
+vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move right' })
+vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move down' })
+vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move up' })
+
+-- Save
+vim.keymap.set('n', '<leader>w', '<cmd>w<CR>', { desc = 'Save', silent = true })
+
+-- Quit
+vim.keymap.set('n', '<leader>q', '<cmd>q<CR>', { desc = 'Quit', silent = true })
+
+-- Show file info
+vim.keymap.set('n', '<leader>i', function()
+  local lines = vim.fn.line '$'
+  local size = vim.fn.getfsize(vim.fn.expand '%')
+  local size_mb = math.floor(size / 1024 / 1024)
+  print(string.format('Lines: %d | Size: %dMB | Minimal Mode', lines, size_mb))
+end, { desc = 'File info' })
+
+vim.api.nvim_create_autocmd('VimEnter', {
+  once = true,
+  callback = function()
+    print '⚡ Minimal mode (for huge files) | <Space>i for file info | <Space>w to save | <Space>q to quit'
+  end,
+})

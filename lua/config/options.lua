@@ -166,5 +166,5 @@ if vim.g.neovide then
   vim.g.neovide_position_animation_length = 0.1 -- window movement/resizing
 
   -- Set GUI font
-  vim.opt.guifont = 'JetBrainsMono Nerd Font:h9'
+  vim.opt.guifont = 'JetBrainsMono Nerd Font:h10'
 end

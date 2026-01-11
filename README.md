@@ -307,8 +307,6 @@ Based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) with exten
 
 **Last Updated**: January 2026
 
-## 📈 Performance for Large Files
-
 See [PERFORMANCE.md](PERFORMANCE.md) for detailed guide on handling large files (especially multi-GB log files).
 
 **Quick Summary**:
