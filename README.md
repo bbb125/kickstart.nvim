@@ -82,6 +82,10 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - **[snacks.nvim](https://github.com/folke/snacks.nvim)** - Multi-purpose utilities
 - **[jira.nvim](https://github.com/letieu/jira.nvim)** - Jira integration
 
+### Rust Development
+- **[rustaceanvim](https://github.com/mrcjkb/rustaceanvim)** - Modern Rust plugin with LSP, DAP, and tools
+- **[crates.nvim](https://github.com/saecki/crates.nvim)** - Cargo.toml dependency management
+
 ## ⌨️ Key Mappings
 
 ### Leader Key
@@ -208,6 +212,39 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 | `]]` | Next word reference | Normal, Terminal |
 | `[[` | Previous word reference | Normal, Terminal |
 
+### Rust Development (RustaceanVim)
+
+| Key | Action |
+|-----|--------|
+| `<leader>rr` | Run runnables |
+| `<leader>rd` | Run debuggables |
+| `<leader>rt` | Run testables |
+| `<leader>re` | Expand macro |
+| `<leader>rc` | Open Cargo.toml |
+| `<leader>rp` | Go to parent module |
+| `<leader>rj` | Join lines |
+| `<leader>rh` | Hover actions |
+| `<leader>rm` | Rebuild proc macros |
+| `K` | Hover actions (in Rust files) |
+
+### Cargo.toml (Crates.nvim)
+
+| Key | Action |
+|-----|--------|
+| `<leader>ct` | Toggle crates |
+| `<leader>cr` | Reload crates |
+| `<leader>cv` | Show versions popup |
+| `<leader>cf` | Show features popup |
+| `<leader>cd` | Show dependencies popup |
+| `<leader>cu` | Update crate |
+| `<leader>ca` | Update all crates |
+| `<leader>cU` | Upgrade crate |
+| `<leader>cA` | Upgrade all crates |
+| `<leader>cH` | Open crate homepage |
+| `<leader>cR` | Open crate repository |
+| `<leader>cD` | Open crate documentation |
+| `<leader>cC` | Open crates.io page |
+
 ## 🎨 Colorscheme
 
 **Kanagawa** with transparent background
@@ -220,6 +257,7 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - **cmake** - CMake
 - **ocaml_ls** - OCaml (installed via opam, not Mason)
 - **lua_ls** - Lua
+- **rust-analyzer** - Rust (via rustaceanvim)
 
 ## 📝 Formatters
 
@@ -227,6 +265,7 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - **clang-format** - C/C++
 - **isort + black** - Python
 - **prettier/prettierd** - JavaScript
+- **rustfmt** - Rust
 
 ## ⚙️ Special Features
 
