@@ -307,6 +307,17 @@ Based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) with exten
 
 **Last Updated**: January 2026
 
+## 📈 Performance for Large Files
+
+See [PERFORMANCE.md](PERFORMANCE.md) for detailed guide on handling large files (especially multi-GB log files).
+
+**Quick Summary**:
+- Files >2MB: Auto-disables LSP, treesitter, syntax
+- Files >100MB: Additional optimizations (no line numbers, cursorline, etc.)
+- Use `<leader>sg` (Telescope grep) for fast searching instead of `/`
+- Your 1.4GB log files are supported!
+
+
 ## 🐛 Known Issues
 
 ### Stylua LSP Error

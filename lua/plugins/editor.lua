@@ -79,7 +79,7 @@ return {
     'LunarVim/bigfile.nvim',
     config = function()
       require('bigfile').setup {
-        filesize = 10, -- in MiB
+        filesize = 2, -- in MiB (lowered from 10 for better performance)
         pattern = { '*.log', '*.out.its', 'out.its.*' },
         features = {
           'indent_blankline',
@@ -92,6 +92,30 @@ return {
           'filetype',
         },
       }
+
+      -- Additional optimizations for HUGE files (>100MB)
+      vim.api.nvim_create_autocmd({ 'BufReadPre', 'FileReadPre' }, {
+        callback = function()
+          local file = vim.fn.expand '<afile>'
+          local size = vim.fn.getfsize(file)
+          -- 100MB threshold for extreme optimizations
+          if size > 100 * 1024 * 1024 or size == -2 then
+            vim.cmd 'syntax off'
+            vim.cmd 'filetype off'
+            vim.opt_local.number = false
+            vim.opt_local.relativenumber = false
+            vim.opt_local.cursorline = false
+            vim.opt_local.cursorcolumn = false
+            vim.opt_local.foldmethod = 'manual'
+            vim.opt_local.foldenable = false
+            vim.opt_local.list = false
+            vim.opt_local.spell = false
+            vim.opt_local.signcolumn = 'no'
+            vim.opt_local.wrap = false
+            vim.notify('Large file detected (' .. math.floor(size / 1024 / 1024) .. 'MB). Disabled heavy features.', vim.log.levels.WARN)
+          end
+        end,
+      })
     end,
   },
 }
