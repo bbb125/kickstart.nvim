@@ -56,18 +56,24 @@ return {
     },
   },
 
-  { -- Buffer tabs
+  { -- Buffer tabs (shows all open buffers as tabs)
     'akinsho/bufferline.nvim',
     version = '*',
     dependencies = 'nvim-tree/nvim-web-devicons',
     opts = {
       options = {
-        mode = 'buffers',
-        separator_style = 'slant', -- or 'thick', 'thin', 'slope'
+        mode = 'buffers', -- Shows all buffers as tabs
+        separator_style = 'slope', -- Arrow-like tabs | Options: 'slant', 'slope', 'thick', 'thin'
         always_show_bufferline = true,
         show_buffer_close_icons = true,
         show_close_icon = false,
         color_icons = true,
+        -- Custom arrow separators for sharper look
+        -- separator_style = { '', '' }, -- Uncomment for custom powerline arrows
+        -- indicator = {
+        --   icon = '▎',
+        --   style = 'icon',
+        -- },
       },
       highlights = {
         buffer_selected = {
