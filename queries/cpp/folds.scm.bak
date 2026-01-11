@@ -1,0 +1,25 @@
+; Functions, classes, namespaces
+(function_definition) @fold
+(class_specifier)     @fold
+(struct_specifier)    @fold
+(namespace_definition) @fold
+
+; Common blocks
+(if_statement)        @fold
+(else_clause)         @fold
+(for_statement)       @fold
+(while_statement)     @fold
+(do_statement)        @fold
+(switch_statement)    @fold
+(try_statement)       @fold
+(catch_clause)        @fold
+
+; Compound scopes and initializer lists
+(compound_statement)  @fold
+(initializer_list)    @fold
+
+; --- C/C++ preprocessor conditionals that are safe to fold ---
+(preproc_if) 	@fold
+(preproc_ifdef) @fold
+(preproc_elif) 	@fold
+(preproc_else) 	@fold
