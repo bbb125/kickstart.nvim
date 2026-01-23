@@ -15,6 +15,20 @@ vim.opt.number = true
 --  Experiment for yourself to see if you like it!
 -- vim.opt.relativenumber = true
 
+-- Enable relative line numbers in visual mode
+vim.api.nvim_create_autocmd('ModeChanged', {
+  pattern = '*:[vV\x16]*', -- Entering visual, visual-line, or visual-block
+  callback = function()
+    vim.opt_local.relativenumber = true
+  end,
+})
+vim.api.nvim_create_autocmd('ModeChanged', {
+  pattern = '[vV\x16]*:*', -- Leaving visual modes
+  callback = function()
+    vim.opt_local.relativenumber = false
+  end,
+})
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
 
@@ -125,27 +139,75 @@ vim.opt.foldtext = 'v:lua.FoldText()'
 
 -- Set the quickfix text function
 function _G.MyQuickfixTextFunc(info)
-  local items = vim.fn.getqflist()
+  local qflist
+  if info.quickfix == 1 then
+    qflist = vim.fn.getqflist { id = info.id, items = 0, title = 0 }
+  else
+    qflist = vim.fn.getloclist(info.winid, { id = info.id, items = 0, title = 0 })
+  end
+
+  local items = qflist.items
+  local title = (qflist.title or ''):lower()
+
+  -- Detect if this is a grep-like search (not compilation)
+  local is_grep = title:match 'grep'
+    or title:match 'vimgrep'
+    or title:match '%f[%w]rg%f[%W]' -- word boundary match for 'rg'
+    or title:match 'telescope'
+    or title:match 'live_grep'
+    or title:match 'find_string'
+    or title:match 'search'
+
+  -- For grep: check if all results are from the same file
+  local single_file = nil
+  if is_grep then
+    local first_bufnr = nil
+    local all_same = true
+    for i = info.start_idx, info.end_idx do
+      local item = items[i]
+      if item and item.bufnr and item.bufnr ~= 0 then
+        if first_bufnr == nil then
+          first_bufnr = item.bufnr
+        elseif item.bufnr ~= first_bufnr then
+          all_same = false
+          break
+        end
+      end
+    end
+    if all_same and first_bufnr then
+      single_file = first_bufnr
+    end
+  end
+
   local lines = {}
-  local last_file = nil
-  for _, item in ipairs(items) do
-    local file = ''
-    if not item.bufnr or item.bufnr == '' then
-      file = '[No Name]'
-    else
-      file = vim.fn.fnamemodify(item.bufnr, ':t')
-    end
+  for i = info.start_idx, info.end_idx do
+    local item = items[i]
+    if item then
+      local text = item.text or ''
+      text = text:gsub('^%s+', '') -- trim leading whitespace
 
-    local display_file = ''
-    if file ~= last_file then
-      display_file = file
-      last_file = file
-    end
+      -- If no valid file/line info, just show the text (e.g., build output)
+      if not item.bufnr or item.bufnr == 0 or item.lnum == 0 then
+        table.insert(lines, text)
+      else
+        local lnum = item.lnum or 0
+        local col = item.col or 0
 
-    local lnum = item.lnum or 0
-    local col = item.col or 0
-    local text = item.text or ''
-    table.insert(lines, string.format('%4d:%-3d\t%s', lnum, col, text))
+        if single_file then
+          -- Grep in single file: just show line:col
+          table.insert(lines, string.format('%4d:%-3d  %s', lnum, col, text))
+        elseif is_grep then
+          -- Grep across files: short filename
+          local filename = vim.fn.fnamemodify(vim.fn.bufname(item.bufnr), ':t')
+          table.insert(lines, string.format('%s:%d:%d: %s', filename, lnum, col, text))
+        else
+          -- Compilation errors: relative path from cwd
+          local filename = vim.fn.bufname(item.bufnr)
+          filename = vim.fn.fnamemodify(filename, ':.')
+          table.insert(lines, string.format('%s:%d:%d: %s', filename, lnum, col, text))
+        end
+      end
+    end
   end
   return lines
 end
@@ -157,7 +219,8 @@ vim.o.autoread = true
 -- Neovide specific settings
 if vim.g.neovide then
   -- Transparency settings (use either neovide_transparency or neovide_opacity, not both)
-  vim.g.neovide_transparency = 0.8
+  --   vim.g.neovide_transparency = 0.8
+  vim.g.neovide_opacity = 0.85
   vim.g.neovide_window_blurred = false
 
   -- Animation settings
@@ -167,4 +230,9 @@ if vim.g.neovide then
 
   -- Set GUI font
   vim.opt.guifont = 'JetBrainsMono Nerd Font:h10'
+
+  -- Disable ligatures
+  vim.g.neovide_font_features = {
+    ['JetBrainsMono Nerd Font'] = { '-calt', '-liga' },
+  }
 end

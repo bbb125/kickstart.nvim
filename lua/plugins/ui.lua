@@ -62,8 +62,8 @@ return {
     dependencies = 'nvim-tree/nvim-web-devicons',
     opts = {
       options = {
-        mode = 'buffers', -- Shows all buffers as tabs
-        separator_style = 'slope', -- Arrow-like tabs | Options: 'slant', 'slope', 'thick', 'thin'
+        mode = 'tabs', -- Shows only actual vim tabs
+        separator_style = { '', '' }, -- Powerline arrows
         always_show_bufferline = true,
         show_buffer_close_icons = true,
         show_close_icon = false,

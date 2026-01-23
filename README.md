@@ -1,6 +1,6 @@
 # Modern Neovim Configuration
 
-A modern, modular Neovim configuration optimized for C++, Lua, and general development.
+A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and general development.
 
 ## 📁 Structure
 
@@ -15,6 +15,7 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 │   │   └── lazy.lua           # Plugin manager setup
 │   ├── plugins/               # Plugin specifications (auto-loaded)
 │   │   ├── ai.lua             # opencode.nvim & snacks.nvim
+│   │   ├── cmake.lua          # cmake-tools, overseer, toggleterm
 │   │   ├── colorscheme.lua    # kanagawa theme
 │   │   ├── completion.lua     # nvim-cmp & snippets
 │   │   ├── debug.lua          # nvim-dap
@@ -25,6 +26,7 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 │   │   ├── jira.lua           # jira.nvim
 │   │   ├── lsp.lua            # Full LSP config
 │   │   ├── modern-enhancements.lua  # flash, trouble, etc.
+│   │   ├── python.lua         # Python development (venv, testing, debug)
 │   │   ├── telescope.lua      # Fuzzy finder
 │   │   └── ui.lua             # which-key, bufferline
 │   └── kickstart/             # Kickstart.nvim modules
@@ -45,6 +47,7 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - **[mini.nvim](https://github.com/echasnovski/mini.nvim)** - Collection of small plugins (ai, surround, statusline)
 - **[todo-comments.nvim](https://github.com/folke/todo-comments.nvim)** - Highlight TODO/FIXME/etc
 - **[marks.nvim](https://github.com/chentoast/marks.nvim)** - Better mark visualization
+- **[indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim)** - Indent guides with scope highlighting
 
 ### LSP & Completion
 - **[nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)** - LSP client configurations
@@ -86,6 +89,23 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - **[rustaceanvim](https://github.com/mrcjkb/rustaceanvim)** - Modern Rust plugin with LSP, DAP, and tools
 - **[crates.nvim](https://github.com/saecki/crates.nvim)** - Cargo.toml dependency management
 
+### Python Development
+- **[pyright](https://github.com/microsoft/pyright)** - Fast Python type checker and language server
+- **[ruff](https://github.com/astral-sh/ruff)** - Ultra-fast Python linter and formatter
+- **[venv-selector.nvim](https://github.com/linux-cultist/venv-selector.nvim)** - Virtual environment picker
+- **[neotest](https://github.com/nvim-neotest/neotest)** - Test runner framework with pytest adapter
+- **[nvim-dap-python](https://github.com/mfussenegger/nvim-dap-python)** - Python debugging with debugpy
+
+### Debugging
+- **[nvim-dap](https://github.com/mfussenegger/nvim-dap)** - Debug Adapter Protocol client
+- **[nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)** - UI for nvim-dap
+- **[nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text)** - Virtual text during debugging
+
+### Build & Task Running
+- **[cmake-tools.nvim](https://github.com/Civitasv/cmake-tools.nvim)** - Full CMake workflow (presets, targets, build, debug)
+- **[overseer.nvim](https://github.com/stevearc/overseer.nvim)** - General task runner (supports Make, Cargo, npm, Go, etc.)
+- **[toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim)** - Terminal management
+
 ## ⌨️ Key Mappings
 
 ### Leader Key
@@ -100,6 +120,13 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 | `<leader>wc` | Close tab/window | Normal |
 | `<C-h/j/k/l>` | Navigate windows | Normal |
 | `<Esc><Esc>` | Exit terminal mode | Terminal |
+
+### File Explorer (nvim-tree)
+
+| Key | Action |
+|-----|--------|
+| `<leader>ef` | Reveal current file in tree (stay in buffer) |
+| `<leader>eF` | Reveal current file in tree and focus |
 
 ### File Navigation (Telescope)
 
@@ -245,6 +272,86 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 | `<leader>cD` | Open crate documentation |
 | `<leader>cC` | Open crates.io page |
 
+### Python Development
+
+| Key | Action |
+|-----|--------|
+| `<leader>pv` | Select Python virtual environment |
+| `<leader>pc` | Use cached virtual environment |
+| `<leader>tt` | Run nearest test |
+| `<leader>tf` | Run tests in current file |
+| `<leader>ts` | Toggle test summary panel |
+| `<leader>to` | Show test output |
+| `<leader>tO` | Toggle test output panel |
+| `<leader>td` | Debug nearest test |
+| `<leader>tS` | Stop running tests |
+| `[t` | Jump to previous failed test |
+| `]t` | Jump to next failed test |
+| `<leader>dpm` | Debug Python method |
+| `<leader>dpc` | Debug Python class |
+| `<leader>dps` | Debug Python selection |
+
+### CMake (cmake-tools.nvim)
+
+| Key | Action |
+|-----|--------|
+| `<leader>mg` | CMake Generate (configure with preset) |
+| `<leader>mb` | CMake Build |
+| `<leader>mr` | CMake Run |
+| `<leader>md` | CMake Debug |
+| `<leader>mt` | Select build target |
+| `<leader>ml` | Select launch target |
+| `<leader>mp` | Select configure preset |
+| `<leader>mP` | Select build preset |
+| `<leader>ms` | Stop CMake |
+| `<leader>mo` | Open CMake output |
+| `<leader>mc` | Close CMake output |
+
+**Note:** cmake-tools automatically creates a symlink to `compile_commands.json` in your project root, and clangd is configured to find it.
+
+### Task Runner (overseer.nvim)
+
+| Key | Action |
+|-----|--------|
+| `<leader>or` | Run task (picker for all build systems) |
+| `<leader>oo` | Toggle task list |
+| `<leader>ob` | Build |
+| `<leader>oa` | Task action menu |
+| `<leader>oq` | Quick action |
+| `<leader>ol` | Restart last task |
+
+**Supported:** Make, CMake, Cargo, npm, Go, Gradle, Meson, and more. Custom Conan templates included.
+
+### Terminal (toggleterm.nvim)
+
+| Key | Action |
+|-----|--------|
+| `<C-\>` | Toggle terminal |
+| `<leader>tf` | Open floating terminal |
+| `<leader>th` | Open horizontal terminal |
+| `<leader>tv` | Open vertical terminal |
+
+**In terminal mode:**
+- `<Esc><Esc>` - Exit to normal mode
+- `<C-\>` - Close terminal
+- Use `i` to re-enter insert mode
+
+### Debugging (nvim-dap)
+
+| Key | Action |
+|-----|--------|
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dB` | Set conditional breakpoint |
+| `<leader>dc` | Continue execution |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>dO` | Step out |
+| `<leader>dr` | Toggle REPL |
+| `<leader>dl` | Run last debug config |
+| `<leader>dt` | Terminate debug session |
+| `<leader>du` | Toggle debug UI |
+| `<leader>de` | Evaluate expression (normal/visual) |
+
 ## 🎨 Colorscheme
 
 **Kanagawa** with transparent background
@@ -258,12 +365,34 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - **ocaml_ls** - OCaml (installed via opam, not Mason)
 - **lua_ls** - Lua
 - **rust-analyzer** - Rust (via rustaceanvim)
+- **pyright** - Python (type checking, IntelliSense)
+- **ruff** - Python (fast linting)
+- **harper_ls** - Grammar/spell checker (markdown, git commits, text)
+
+### Harper (Grammar Checker)
+
+Harper checks grammar and spelling in markdown, git commits, and text files.
+
+**What it catches:**
+- Spelling errors
+- "A" vs "an" mistakes
+- Sentence capitalization
+- Unclosed quotes
+- Long sentences (readability)
+- Repeated words ("the the")
+- Extra spaces
+- Wrong number suffixes ("1th" → "1st")
+
+**Usage:**
+- Errors appear as diagnostics (underlined)
+- `<leader>ca` - Code action to fix or add to dictionary
+- `K` (hover) - Shows the grammar issue explanation
 
 ## 📝 Formatters
 
 - **stylua** - Lua
 - **clang-format** - C/C++
-- **isort + black** - Python
+- **ruff** - Python (fast formatting and import sorting)
 - **prettier/prettierd** - JavaScript
 - **rustfmt** - Rust
 
@@ -289,6 +418,11 @@ A modern, modular Neovim configuration optimized for C++, Lua, and general devel
 - Custom transparency settings
 - Optimized animation lengths
 - JetBrainsMono Nerd Font
+- Ligatures disabled via `neovide_font_features`
+
+### Line Numbers
+- Absolute line numbers by default
+- Relative line numbers automatically enabled in visual mode (for easy range selection)
 
 ## 🔧 Customization
 
@@ -331,6 +465,22 @@ To customize, edit files in `lua/config/` and `lua/plugins/`:
 - `:ConformInfo` - Check formatter status
 - `:checkhealth` - Health check
 
+### CMake Commands (`<leader>m` prefix)
+- `:CMakeGenerate` (`<leader>mg`) - Configure project (uses presets if available)
+- `:CMakeBuild` (`<leader>mb`) - Build current target
+- `:CMakeRun` (`<leader>mr`) - Run launch target
+- `:CMakeSelectConfigurePreset` (`<leader>mp`) - Pick CMake preset
+- `:CMakeSelectBuildTarget` (`<leader>mt`) - Pick build target
+
+### Task Runner Commands
+- `:OverseerRun` - Run a task (shows picker)
+- `:OverseerToggle` - Show/hide task list
+- `:OverseerRestartLast` - Re-run last task
+
+### Terminal Commands
+- `:ToggleTerm` - Toggle terminal
+- `:TermExec cmd="your command"` - Run command in terminal
+
 ## 📚 Resources
 
 - [Neovim Documentation](https://neovim.io/doc/)
@@ -352,7 +502,6 @@ See [PERFORMANCE.md](PERFORMANCE.md) for detailed guide on handling large files 
 - Files >2MB: Auto-disables LSP, treesitter, syntax
 - Files >100MB: Additional optimizations (no line numbers, cursorline, etc.)
 - Use `<leader>sg` (Telescope grep) for fast searching instead of `/`
-- Your 1.4GB log files are supported!
 
 
 ## 🐛 Known Issues

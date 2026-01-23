@@ -118,7 +118,37 @@ return {
             usePlaceholders = true,
             completeUnimported = true,
             clangdFileStatus = true,
+            -- Search these directories for compile_commands.json (in order)
+            -- cmake-tools.nvim creates a symlink in project root, but these are fallbacks
+            compilationDatabasePath = '',
+            fallbackFlags = { '-std=c++20' },
           },
+          -- Function to find compile_commands.json in common locations
+          on_new_config = function(new_config, root_dir)
+            local util = require 'lspconfig.util'
+            -- Common build directories to search (in order of preference)
+            local build_dirs = {
+              root_dir, -- Project root (cmake-tools creates symlink here)
+              root_dir .. '/build',
+              root_dir .. '/build/Release',
+              root_dir .. '/build/Debug',
+              root_dir .. '/build/RelWithDebInfo',
+              root_dir .. '/cmake-build-debug',
+              root_dir .. '/cmake-build-release',
+              root_dir .. '/out/build',
+            }
+
+            for _, dir in ipairs(build_dirs) do
+              local compile_commands = dir .. '/compile_commands.json'
+              if vim.fn.filereadable(compile_commands) == 1 then
+                -- Add --compile-commands-dir flag
+                new_config.cmd = vim.list_extend(vim.deepcopy(new_config.cmd), {
+                  '--compile-commands-dir=' .. dir,
+                })
+                break
+              end
+            end
+          end,
         },
         cmake = {},
         ocaml_ls = {
@@ -133,6 +163,47 @@ return {
             },
           },
         },
+        pyright = {
+          settings = {
+            pyright = {
+              disableOrganizeImports = true, -- Using ruff for imports
+            },
+            python = {
+              analysis = {
+                autoSearchPaths = true,
+                diagnosticMode = 'openFilesOnly',
+                useLibraryCodeForTypes = true,
+                typeCheckingMode = 'basic',
+              },
+            },
+          },
+        },
+        ruff = {}, -- Fast Python linter (replaces flake8, isort, etc.)
+        harper_ls = {
+          filetypes = { 'markdown', 'gitcommit', 'text' },
+          settings = {
+            ['harper-ls'] = {
+              linters = {
+                spell_check = true,
+                spelled_numbers = false,
+                an_a = true,
+                sentence_capitalization = true,
+                unclosed_quotes = true,
+                wrong_quotes = false,
+                long_sentences = true,
+                repeated_words = true,
+                spaces = true,
+                matcher = true,
+                correct_number_suffix = true,
+                number_suffix_capitalization = true,
+                multiple_sequential_pronouns = true,
+              },
+              codeActions = {
+                forceStable = true,
+              },
+            },
+          },
+        },
       }
 
       local ensure_installed = vim.tbl_keys(servers or {})
@@ -142,6 +213,11 @@ return {
       end, ensure_installed)
       vim.list_extend(ensure_installed, {
         'stylua',
+        -- Python tools
+        'black', -- Formatter
+        'isort', -- Import sorter
+        'debugpy', -- Python debugger
+        'mypy', -- Type checker
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -157,6 +233,9 @@ return {
           end,
         },
       }
+
+      -- Disable stylua LSP (it's a formatter, not an LSP server)
+      vim.lsp.enable('stylua', false)
     end,
   },
 

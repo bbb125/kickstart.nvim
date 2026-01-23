@@ -18,6 +18,17 @@ return {
           },
         },
       }
+
+      -- Keymaps for syncing current file with nvim-tree
+      vim.keymap.set('n', '<leader>ef', function()
+        -- Reveal file in tree but stay in current window
+        require('nvim-tree.api').tree.find_file { open = true, focus = false }
+      end, { desc = 'Reveal file in tree' })
+
+      vim.keymap.set('n', '<leader>eF', function()
+        -- Reveal file in tree and jump to it
+        require('nvim-tree.api').tree.find_file { open = true, focus = true }
+      end, { desc = 'Reveal file in tree and focus' })
     end,
   },
 

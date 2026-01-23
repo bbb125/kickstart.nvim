@@ -25,6 +25,11 @@ return {
             width = 0.9,
             preview_cutoff = 1,
           },
+          file_ignore_patterns = {
+            '^tags$',
+            '^TAGS$',
+            '%.tags$',
+          },
         },
         extensions = {
           ['ui-select'] = {
@@ -52,6 +57,7 @@ return {
       vim.keymap.set('n', '<leader>st', builtin.tags, { desc = '[S]earch [T]ags' })
       vim.keymap.set('n', '<leader>sct', builtin.current_buffer_tags, { desc = '[S]earch [C]urrent buffer [T]ags' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch [B]uffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()

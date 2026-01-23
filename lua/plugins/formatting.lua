@@ -32,7 +32,7 @@ return {
         lua = { 'stylua' },
         c = { 'clang-format' },
         cpp = { 'clang-format' },
-        python = { 'isort', 'black' },
+        python = { 'ruff_fix', 'ruff_format' }, -- ruff for fast linting/formatting
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
         rust = { 'rustfmt' },
       },

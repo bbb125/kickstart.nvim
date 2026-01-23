@@ -2,43 +2,32 @@ return {
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs',
-    opts = {
-      ensure_installed = {
-        'bash',
-        'c',
-        'cpp',
-        'diff',
-        'html',
-        'javascript',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'python',
-        'query',
-        'rust',
-        'vim',
-        'vimdoc',
-      },
-      auto_install = true,
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-        disable = function(lang, buf)
-          return vim.api.nvim_buf_line_count(buf) > 10000
-        end,
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    config = function(_, opts)
-      require('nvim-treesitter.configs').setup(opts)
+    config = function()
+      require('nvim-treesitter').setup({
+        ensure_installed = {
+          'bash',
+          'c',
+          'cpp',
+          'diff',
+          'html',
+          'javascript',
+          'lua',
+          'luadoc',
+          'markdown',
+          'markdown_inline',
+          'python',
+          'query',
+          'rust',
+          'vim',
+          'vimdoc',
+        },
+        auto_install = true,
+      })
 
       -- Treat files with filetype "c" as C++ for Tree-sitter
       vim.treesitter.language.register('cpp', 'c')
     end,
   },
-
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -73,6 +62,22 @@ return {
     'chentoast/marks.nvim',
     event = 'VeryLazy',
     opts = {},
+  },
+
+  { -- Indent guides with scope highlighting
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    event = 'VeryLazy',
+    opts = {
+      indent = {
+        char = '│',
+      },
+      scope = {
+        enabled = true,
+        show_start = false,
+        show_end = false,
+      },
+    },
   },
 
   { -- Performance for large files
