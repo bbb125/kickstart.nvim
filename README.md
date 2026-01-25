@@ -439,6 +439,68 @@ To customize, edit files in `lua/config/` and `lua/plugins/`:
 - **New plugin**: Create file in `lua/plugins/` (auto-loaded)
 - **LSP servers**: Edit `lua/plugins/lsp.lua`
 
+## 📋 Prerequisites
+
+### Required
+
+Install these before using this configuration:
+
+```bash
+# macOS (Homebrew)
+brew install neovim git ripgrep fd lazygit
+
+# Font with icons (required for UI)
+brew install --cask font-jetbrains-mono-nerd-font
+```
+
+| Dependency | Purpose |
+|------------|---------|
+| [Neovim](https://neovim.io/) ≥ 0.10 | Editor (0.11+ recommended) |
+| [Git](https://git-scm.com/) | Plugin management, gitsigns, diffview |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | Telescope live grep |
+| [fd](https://github.com/sharkdp/fd) | Telescope file finder |
+| [lazygit](https://github.com/jesseduffield/lazygit) | Git TUI (`<leader>gg`) |
+| [Nerd Font](https://www.nerdfonts.com/) | Icons in UI |
+
+### Build Tools (for Treesitter)
+
+```bash
+# macOS
+xcode-select --install
+# or
+brew install gcc make
+```
+
+### Optional (Language-Specific)
+
+```bash
+# C/C++ development
+brew install llvm cmake ninja
+
+# Rust development
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Python development
+brew install python
+pip install debugpy
+
+# Node.js (for some LSP servers)
+brew install node
+
+# OCaml (if needed)
+brew install opam
+opam install ocaml-lsp-server
+```
+
+### Installed Automatically via Mason
+
+These tools are auto-installed by Mason on first launch:
+- **LSP servers**: clangd, lua_ls, pyright, ruff, rust-analyzer, harper_ls
+- **Formatters**: stylua, clang-format, prettier
+- **Debug adapters**: debugpy, codelldb
+
+Run `:Mason` to see/manage installed tools.
+
 ## 📦 Installation
 
 1. Backup existing config:
