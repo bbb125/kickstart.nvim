@@ -448,9 +448,23 @@ Install these before using this configuration:
 ```bash
 # macOS (Homebrew)
 brew install neovim git ripgrep fd lazygit
-
-# Font with icons (required for UI)
 brew install --cask font-jetbrains-mono-nerd-font
+
+# Linux (Ubuntu/Debian)
+sudo apt install git ripgrep fd-find
+# Neovim - use AppImage or build from source for latest version
+# https://github.com/neovim/neovim/releases
+# lazygit: https://github.com/jesseduffield/lazygit#installation
+
+# Linux (Fedora/RHEL)
+sudo dnf install neovim git ripgrep fd-find
+# lazygit: https://github.com/jesseduffield/lazygit#installation
+
+# Cross-platform (pixi - recommended for reproducible environments)
+pixi global install neovim ripgrep fd lazygit
+
+# Nerd Font (Linux) - download from https://www.nerdfonts.com/
+# Extract to ~/.local/share/fonts/ and run: fc-cache -fv
 ```
 
 | Dependency | Purpose |
@@ -469,27 +483,43 @@ brew install --cask font-jetbrains-mono-nerd-font
 xcode-select --install
 # or
 brew install gcc make
+
+# Linux (Ubuntu/Debian)
+sudo apt install build-essential
+
+# Linux (Fedora/RHEL)
+sudo dnf groupinstall "Development Tools"
+
+# pixi
+pixi global install gcc make
 ```
 
 ### Optional (Language-Specific)
 
 ```bash
 # C/C++ development
-brew install llvm cmake ninja
+brew install llvm cmake ninja                    # macOS
+sudo apt install clang cmake ninja-build         # Ubuntu/Debian
+pixi global install clang cmake ninja            # pixi
 
 # Rust development
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Python development
-brew install python
-pip install debugpy
+brew install python                              # macOS
+sudo apt install python3 python3-pip python3-venv  # Ubuntu/Debian
+pixi global install python                       # pixi
+pip install debugpy                              # all platforms
 
 # Node.js (for some LSP servers)
-brew install node
+brew install node                                # macOS
+sudo apt install nodejs npm                      # Ubuntu/Debian
+pixi global install nodejs                       # pixi
 
 # OCaml (if needed)
-brew install opam
-opam install ocaml-lsp-server
+brew install opam                                # macOS
+sudo apt install opam                            # Ubuntu/Debian
+opam install ocaml-lsp-server                    # all platforms
 ```
 
 ### Installed Automatically via Mason
