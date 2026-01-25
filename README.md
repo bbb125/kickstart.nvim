@@ -65,6 +65,7 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 
 ### Git Integration
 - **[gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim)** - Git decorations
+- **[diffview.nvim](https://github.com/sindrets/diffview.nvim)** - Side-by-side diff view for commits and file history
 - **[snacks.nvim](https://github.com/folke/snacks.nvim)** - Includes lazygit integration
 
 ### UI/UX
@@ -182,7 +183,7 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `r` | Remote Flash | Operator |
 | `R` | Treesitter Search | Operator, Visual |
 
-### Git (Snacks & Gitsigns)
+### Git (Snacks, Gitsigns & Diffview)
 
 | Key | Action |
 |-----|--------|
@@ -191,6 +192,11 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<leader>gB` | Git browse (open in browser) |
 | `<leader>gf` | File history in lazygit |
 | `<leader>gl` | Git log (cwd) |
+| `<leader>gd` | Diff view (working changes) |
+| `<leader>gc` | Pick commit to view in diff |
+| `<leader>gh` | File history (current file) |
+| `<leader>gH` | File history (all files) |
+| `<leader>gq` | Close diff view |
 
 ### Sessions (Persistence)
 
