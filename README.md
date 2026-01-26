@@ -309,9 +309,16 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<leader>ml` | Select launch target |
 | `<leader>mp` | Select configure preset |
 | `<leader>mP` | Select build preset |
+| `<leader>mD` | Select build directory (for custom setups) |
+| `<leader>mT` | Select build type (Debug/Release) |
 | `<leader>ms` | Stop CMake |
 | `<leader>mo` | Open CMake output |
 | `<leader>mc` | Close CMake output |
+
+**Workflows supported:**
+1. **Preset-based**: Just use `<leader>mp` to select preset, then `<leader>mg` to generate
+2. **Traditional**: Use `<leader>mT` to select build type (Debug/Release)
+3. **Custom/Manual**: Run your own cmake command, then `<leader>mD` to point to your build dir
 
 **Note:** cmake-tools automatically creates a symlink to `compile_commands.json` in your project root, and clangd is configured to find it.
 
@@ -326,7 +333,13 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<leader>oq` | Quick action |
 | `<leader>ol` | Restart last task |
 
-**Supported:** Make, CMake, Cargo, npm, Go, Gradle, Meson, and more. Custom Conan templates included.
+**Supported:** Make, CMake, Cargo, npm, Go, Gradle, Meson, Ninja, and more.
+
+**Custom templates included:**
+- `ninja` - Direct ninja build (auto-detects build directory)
+- `ninja (select target)` - Ninja with target and directory selection
+- `conan install` - Install Conan dependencies
+- `cmake conan workflow` - Full CMake+Conan workflow
 
 ### Terminal (toggleterm.nvim)
 

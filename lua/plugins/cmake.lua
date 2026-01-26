@@ -25,6 +25,8 @@ return {
       { '<leader>ml', '<cmd>CMakeSelectLaunchTarget<cr>', desc = 'C[M]ake Select [L]aunch Target' },
       { '<leader>mp', '<cmd>CMakeSelectConfigurePreset<cr>', desc = 'C[M]ake Select [P]reset' },
       { '<leader>mP', '<cmd>CMakeSelectBuildPreset<cr>', desc = 'C[M]ake Select Build [P]reset' },
+      { '<leader>mD', '<cmd>CMakeSelectBuildDir<cr>', desc = 'C[M]ake Select Build [D]ir' },
+      { '<leader>mT', '<cmd>CMakeSelectBuildType<cr>', desc = 'C[M]ake Select Build [T]ype' },
       { '<leader>ms', '<cmd>CMakeStop<cr>', desc = 'C[M]ake [S]top' },
       { '<leader>mo', '<cmd>CMakeOpen<cr>', desc = 'C[M]ake [O]pen Output' },
       { '<leader>mc', '<cmd>CMakeClose<cr>', desc = 'C[M]ake [C]lose Output' },
@@ -200,6 +202,81 @@ return {
         condition = {
           callback = function()
             return vim.fn.filereadable 'CMakePresets.json' == 1
+          end,
+        },
+      }
+
+      -- Ninja build template (for custom/manual cmake setups)
+      overseer.register_template {
+        name = 'ninja',
+        builder = function()
+          -- Find build directory with build.ninja
+          local build_dirs = { 'build', 'build/Debug', 'build/Release', 'cmake-build-debug', 'cmake-build-release', 'out/build' }
+          local build_dir = nil
+          for _, dir in ipairs(build_dirs) do
+            if vim.fn.filereadable(dir .. '/build.ninja') == 1 then
+              build_dir = dir
+              break
+            end
+          end
+          return {
+            cmd = { 'ninja' },
+            args = { '-C', build_dir or 'build' },
+            name = 'Ninja Build',
+            cwd = vim.fn.getcwd(),
+          }
+        end,
+        condition = {
+          callback = function()
+            -- Check common build directories for build.ninja
+            local build_dirs = { 'build', 'build/Debug', 'build/Release', 'cmake-build-debug', 'cmake-build-release', 'out/build' }
+            for _, dir in ipairs(build_dirs) do
+              if vim.fn.filereadable(dir .. '/build.ninja') == 1 then
+                return true
+              end
+            end
+            return false
+          end,
+        },
+      }
+
+      -- Ninja with target selection
+      overseer.register_template {
+        name = 'ninja (select target)',
+        params = {
+          target = {
+            type = 'string',
+            desc = 'Build target',
+            default = '',
+            optional = true,
+          },
+          build_dir = {
+            type = 'string',
+            desc = 'Build directory',
+            default = 'build',
+          },
+        },
+        builder = function(params)
+          local args = { '-C', params.build_dir }
+          if params.target and params.target ~= '' then
+            table.insert(args, params.target)
+          end
+          return {
+            cmd = { 'ninja' },
+            args = args,
+            name = 'Ninja: ' .. (params.target ~= '' and params.target or 'all'),
+            cwd = vim.fn.getcwd(),
+          }
+        end,
+        condition = {
+          callback = function()
+            local build_dirs = { 'build', 'build/Debug', 'build/Release', 'cmake-build-debug', 'cmake-build-release', 'out/build' }
+            for _, dir in ipairs(build_dirs) do
+              if vim.fn.filereadable(dir .. '/build.ninja') == 1 then
+                return true
+              end
+            end
+            return false
           end,
         },
       }
