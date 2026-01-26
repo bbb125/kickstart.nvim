@@ -253,6 +253,10 @@ return {
           local server = servers[server_name] or {}
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
           require('lspconfig')[server_name].setup(server)
+          -- Enable auto-start for Neovim 0.11+
+          if vim.fn.has 'nvim-0.11' == 1 then
+            vim.lsp.enable(server_name)
+          end
         end
       end
     end,
