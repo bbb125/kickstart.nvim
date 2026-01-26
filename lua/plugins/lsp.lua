@@ -271,6 +271,13 @@ return {
                 vim.cmd('LspStart ' .. server_name)
               end,
             })
+            -- Also start immediately if current buffer matches
+            local current_ft = vim.bo.filetype
+            if vim.tbl_contains(filetypes, current_ft) then
+              vim.schedule(function()
+                vim.cmd('LspStart ' .. server_name)
+              end)
+            end
           end
         end
       end
