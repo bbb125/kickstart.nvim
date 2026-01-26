@@ -207,9 +207,19 @@ return {
       }
 
       local ensure_installed = vim.tbl_keys(servers or {})
-      -- Filter out servers that can't be installed via Mason
+      -- Filter out servers that can't/shouldn't be installed via Mason
+      -- (use system versions on Linux with older glibc, or when already available)
+      local skip_mason = { 'ocaml_ls' }
+      -- On Linux, prefer system clangd and skip harper_ls if glibc is old
+      if vim.fn.has 'linux' == 1 then
+        if vim.fn.executable 'clangd' == 1 then
+          table.insert(skip_mason, 'clangd')
+        end
+        -- harper_ls often has glibc issues on older Linux
+        table.insert(skip_mason, 'harper_ls')
+      end
       ensure_installed = vim.tbl_filter(function(server)
-        return server ~= 'ocaml_ls'
+        return not vim.tbl_contains(skip_mason, server)
       end, ensure_installed)
       vim.list_extend(ensure_installed, {
         'stylua',
@@ -236,6 +246,15 @@ return {
 
       -- Disable stylua LSP (it's a formatter, not an LSP server)
       vim.lsp.enable('stylua', false)
+
+      -- Manually set up servers skipped from Mason (using system binaries)
+      for _, server_name in ipairs(skip_mason) do
+        if servers[server_name] and vim.fn.executable(server_name:gsub('_', '-')) == 1 then
+          local server = servers[server_name] or {}
+          server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+          require('lspconfig')[server_name].setup(server)
+        end
+      end
     end,
   },
 
