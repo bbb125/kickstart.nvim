@@ -1,7 +1,12 @@
+local is_mac = vim.fn.has 'macunix' == 1
+local is_linux = vim.fn.has 'linux' == 1
+
 return {
+  -- Kanagawa for macOS (with transparency)
   {
     'rebelot/kanagawa.nvim',
-    priority = 1000, -- Load before other plugins
+    enabled = is_mac,
+    priority = 1000,
     config = function()
       vim.cmd.colorscheme 'kanagawa'
       vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
@@ -26,6 +31,25 @@ return {
       else
         vim.api.nvim_set_hl(0, 'ColorColumn', { bg = '#1b1b1b', blend = 70 })
       end
+    end,
+  },
+
+  -- TokyoNight for Linux (solid background, good for basic terminals)
+  {
+    'folke/tokyonight.nvim',
+    enabled = is_linux,
+    priority = 1000,
+    opts = {
+      style = 'night', -- night, storm, day, moon
+      terminal_colors = true,
+      styles = {
+        comments = { italic = false }, -- disable italics (some terminals struggle)
+        keywords = { italic = false },
+      },
+    },
+    config = function(_, opts)
+      require('tokyonight').setup(opts)
+      vim.cmd.colorscheme 'tokyonight'
     end,
   },
 }
