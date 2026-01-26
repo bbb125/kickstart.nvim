@@ -248,14 +248,29 @@ return {
       vim.lsp.enable('stylua', false)
 
       -- Manually set up servers skipped from Mason (using system binaries)
+      -- Map server names to their filetypes
+      local server_filetypes = {
+        clangd = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
+        ocaml_ls = { 'ocaml', 'menhir', 'ocamlinterface', 'ocamllex', 'reason', 'dune' },
+      }
+
       for _, server_name in ipairs(skip_mason) do
-        if servers[server_name] and vim.fn.executable(server_name:gsub('_', '-')) == 1 then
+        local cmd_name = server_name:gsub('_', '-')
+        if servers[server_name] and vim.fn.executable(cmd_name) == 1 then
           local server = servers[server_name] or {}
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
           require('lspconfig')[server_name].setup(server)
-          -- Enable auto-start for Neovim 0.11+
-          if vim.fn.has 'nvim-0.11' == 1 then
-            vim.lsp.enable(server_name)
+
+          -- Auto-start on matching filetypes
+          local filetypes = server_filetypes[server_name]
+          if filetypes then
+            vim.api.nvim_create_autocmd('FileType', {
+              pattern = filetypes,
+              group = vim.api.nvim_create_augroup('lsp_autostart_' .. server_name, { clear = true }),
+              callback = function()
+                vim.cmd('LspStart ' .. server_name)
+              end,
+            })
           end
         end
       end
