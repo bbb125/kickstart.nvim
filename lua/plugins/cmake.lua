@@ -301,7 +301,7 @@ return {
     keys = {
       { '<C-\\>', '<cmd>ToggleTerm<cr>', desc = 'Toggle Terminal' },
       { '<leader>tf', '<cmd>ToggleTerm direction=float<cr>', desc = '[T]erminal [F]loat' },
-      { '<leader>th', '<cmd>ToggleTerm direction=horizontal<cr>', desc = '[T]erminal [H]orizontal' },
+      { '<leader>tH', '<cmd>ToggleTerm direction=horizontal<cr>', desc = '[T]erminal [H]orizontal' },
       { '<leader>tv', '<cmd>ToggleTerm direction=vertical size=80<cr>', desc = '[T]erminal [V]ertical' },
     },
     opts = {

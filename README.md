@@ -347,7 +347,7 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 |-----|--------|
 | `<C-\>` | Toggle terminal |
 | `<leader>tf` | Open floating terminal |
-| `<leader>th` | Open horizontal terminal |
+| `<leader>tH` | Open horizontal terminal |
 | `<leader>tv` | Open vertical terminal |
 
 **In terminal mode:**
