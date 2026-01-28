@@ -27,15 +27,25 @@ return {
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
+          -- Popular keys (keep for muscle memory)
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
           map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
           map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
           map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
           map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
-          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+          -- LSP prefix (<leader>l) - organized LSP commands
+          map('<leader>ld', require('telescope.builtin').lsp_definitions, 'Definition')
+          map('<leader>lr', require('telescope.builtin').lsp_references, 'References')
+          map('<leader>li', require('telescope.builtin').lsp_implementations, 'Implementation')
+          map('<leader>lD', vim.lsp.buf.declaration, 'Declaration')
+          map('<leader>lt', require('telescope.builtin').lsp_type_definitions, 'Type definition')
+          map('<leader>ls', require('telescope.builtin').lsp_document_symbols, 'Document symbols')
+          map('<leader>lS', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace symbols')
+          map('<leader>ln', vim.lsp.buf.rename, 'Rename')
+          map('<leader>la', vim.lsp.buf.code_action, 'Code action', { 'n', 'x' })
+          map('<leader>lR', '<cmd>LspRestart<cr>', 'Restart LSP')
 
           local function client_supports_method(client, method, bufnr)
             if vim.fn.has 'nvim-0.11' == 1 then
@@ -70,9 +80,9 @@ return {
           end
 
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-            map('<leader>th', function()
+            map('<leader>lh', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-            end, '[T]oggle Inlay [H]ints')
+            end, 'Toggle inlay hints')
           end
         end,
       })

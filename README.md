@@ -148,19 +148,33 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 
 ### LSP
 
+**Popular shortcuts (also available under `<leader>l`):**
+
 | Key | Action |
 |-----|--------|
 | `gd` | Go to definition |
 | `gr` | Go to references |
 | `gI` | Go to implementation |
 | `gD` | Go to declaration |
-| `<leader>D` | Type definition |
-| `<leader>ds` | Document symbols |
-| `<leader>ws` | Workspace symbols |
 | `<leader>rn` | Rename symbol |
 | `<leader>ca` | Code action |
-| `<leader>th` | Toggle inlay hints |
 | `<leader>ch` | Switch header/source (C++) |
+
+**Full LSP menu (`<leader>l`):**
+
+| Key | Action |
+|-----|--------|
+| `<leader>ld` | Definition |
+| `<leader>lr` | References |
+| `<leader>li` | Implementation |
+| `<leader>lD` | Declaration |
+| `<leader>lt` | Type definition |
+| `<leader>ls` | Document symbols |
+| `<leader>lS` | Workspace symbols |
+| `<leader>ln` | Rename |
+| `<leader>la` | Code action |
+| `<leader>lh` | Toggle inlay hints |
+| `<leader>lR` | Restart LSP |
 
 ### Diagnostics & Quickfix (Trouble)
 
