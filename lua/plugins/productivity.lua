@@ -113,6 +113,15 @@ return {
       'rcarriga/nvim-notify', -- optional but nice notifications
     },
     opts = {
+      cmdline = {
+        enabled = false, -- Use classic cmdline (disable noice cmdline)
+      },
+      messages = {
+        enabled = true, -- Keep nice message notifications
+      },
+      popupmenu = {
+        enabled = false, -- Use classic wildmenu
+      },
       lsp = {
         -- override markdown rendering for LSP hover/signature
         override = {
@@ -120,12 +129,18 @@ return {
           ['vim.lsp.util.stylize_markdown'] = true,
           ['cmp.entry.get_documentation'] = true,
         },
+        progress = {
+          enabled = true, -- Keep LSP progress notifications
+        },
+        hover = {
+          enabled = true, -- Nice hover docs
+        },
+        signature = {
+          enabled = true, -- Nice signature help
+        },
       },
       presets = {
-        bottom_search = true, -- use classic bottom cmdline for search
-        command_palette = true, -- position cmdline and popupmenu together
         long_message_to_split = true, -- long messages go to split
-        inc_rename = false, -- no input dialog for inc-rename
         lsp_doc_border = true, -- add border to hover docs
       },
       routes = {
