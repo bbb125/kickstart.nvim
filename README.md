@@ -80,6 +80,12 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 - **[persistence.nvim](https://github.com/folke/persistence.nvim)** - Session management
 - **[bigfile.nvim](https://github.com/LunarVim/bigfile.nvim)** - Performance for large files
 - **[nvim-autopairs](https://github.com/windwp/nvim-autopairs)** - Auto close brackets
+- **[grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim)** - Fast search and replace across files
+- **[undotree](https://github.com/mbbill/undotree)** - Visualize undo history
+- **[harpoon](https://github.com/ThePrimeagen/harpoon)** - Quick file navigation (mark & jump)
+- **[noice.nvim](https://github.com/folke/noice.nvim)** - Modern UI for cmdline, messages, notifications
+- **[neorg](https://github.com/nvim-neorg/neorg)** - Org-mode for Neovim (notes, todos)
+- **[refactoring.nvim](https://github.com/ThePrimeagen/refactoring.nvim)** - Extract function/variable, inline, etc.
 
 ### AI/Productivity
 - **[opencode.nvim](https://github.com/NickvanDyke/opencode.nvim)** - AI code assistant
@@ -220,6 +226,58 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<leader>qS` | Select session |
 | `<leader>ql` | Restore last session |
 | `<leader>qd` | Don't save current session |
+
+### Search & Replace (grug-far)
+
+| Key | Action |
+|-----|--------|
+| `<leader>sr` | Open search and replace |
+| `<leader>sr` (visual) | Search selected text |
+
+### Undo Tree
+
+| Key | Action |
+|-----|--------|
+| `<leader>U` | Toggle undo tree |
+
+### Harpoon (Quick File Navigation)
+
+| Key | Action |
+|-----|--------|
+| `<leader>ha` | Add current file to harpoon |
+| `<leader>hh` | Open harpoon menu |
+| `<leader>1-4` | Jump to harpoon file 1-4 |
+| `<leader>hp` | Previous harpoon file |
+| `<leader>hn` | Next harpoon file |
+
+### Noice (UI)
+
+| Key | Action |
+|-----|--------|
+| `<leader>nd` | Dismiss notifications |
+| `<leader>nl` | Show last message |
+| `<leader>nh` | Show message history |
+
+### Neorg (Notes)
+
+| Key | Action |
+|-----|--------|
+| `<leader>ni` | Open neorg index |
+| `<leader>nw` | Switch workspace |
+| `<leader>nj` | Open today's journal |
+| `<leader>nr` | Return to previous buffer |
+
+### Refactoring (Visual Mode)
+
+| Key | Action |
+|-----|--------|
+| `<leader>re` | Extract function |
+| `<leader>rf` | Extract function to file |
+| `<leader>rv` | Extract variable |
+| `<leader>ri` | Inline variable |
+| `<leader>rI` | Inline function |
+| `<leader>rb` | Extract block |
+| `<leader>rr` | Refactor menu |
 
 ### Buffer & UI
 

@@ -56,6 +56,8 @@ return {
         { '<leader>m', group = 'C[M]ake' },
         { '<leader>o', group = '[O]verseer' },
         { '<leader>e', group = '[E]xplorer' },
+        { '<leader>h', group = '[H]arpoon' },
+        { '<leader>n', group = '[N]eorg/Noice' },
       },
     },
   },
