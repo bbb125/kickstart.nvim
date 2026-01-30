@@ -231,8 +231,8 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 
 | Key | Action |
 |-----|--------|
-| `<leader>sr` | Open search and replace |
-| `<leader>sr` (visual) | Search selected text |
+| `<leader>S` | Open search and replace |
+| `<leader>S` (visual) | Search selected text |
 
 ### Undo Tree
 

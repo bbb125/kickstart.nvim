@@ -6,19 +6,19 @@ return {
     cmd = 'GrugFar',
     keys = {
       {
-        '<leader>sr',
+        '<leader>S',
         function()
           require('grug-far').open()
         end,
-        desc = '[S]earch and [R]eplace (grug-far)',
+        desc = '[S]earch and Replace (grug-far)',
       },
       {
-        '<leader>sr',
+        '<leader>S',
         function()
           require('grug-far').open { prefills = { search = vim.fn.expand '<cword>' } }
         end,
         mode = 'v',
-        desc = '[S]earch and [R]eplace selection',
+        desc = '[S]earch and Replace selection',
       },
     },
     opts = {
