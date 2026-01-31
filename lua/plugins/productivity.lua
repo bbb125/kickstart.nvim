@@ -113,6 +113,15 @@ return {
       'rcarriga/nvim-notify', -- optional but nice notifications
     },
     opts = {
+      cmdline = {
+        view = 'cmdline_popup',
+        opts = {
+          position = {
+            row = '30%', -- 30% from top = 70% up from bottom
+            col = '50%',
+          },
+        },
+      },
       lsp = {
         -- override markdown rendering for LSP hover/signature
         override = {
