@@ -64,9 +64,22 @@ return {
         },
       }
 
+      -- Cmdline mappings with arrow key support
+      local cmdline_mappings = {
+        ['<C-n>'] = { c = cmp.mapping.select_next_item() },
+        ['<C-p>'] = { c = cmp.mapping.select_prev_item() },
+        ['<Down>'] = { c = cmp.mapping.select_next_item() },
+        ['<Up>'] = { c = cmp.mapping.select_prev_item() },
+        ['<Tab>'] = { c = cmp.mapping.select_next_item() },
+        ['<S-Tab>'] = { c = cmp.mapping.select_prev_item() },
+        ['<C-y>'] = { c = cmp.mapping.confirm { select = true } },
+        ['<CR>'] = { c = cmp.mapping.confirm { select = false } },
+        ['<C-e>'] = { c = cmp.mapping.abort() },
+      }
+
       -- Cmdline completion for ':' commands
       cmp.setup.cmdline(':', {
-        mapping = cmp.mapping.preset.cmdline(),
+        mapping = cmdline_mappings,
         sources = cmp.config.sources({
           { name = 'path' },
         }, {
@@ -77,7 +90,7 @@ return {
 
       -- Cmdline completion for '/' search
       cmp.setup.cmdline('/', {
-        mapping = cmp.mapping.preset.cmdline(),
+        mapping = cmdline_mappings,
         sources = {
           { name = 'buffer' },
         },
