@@ -143,6 +143,11 @@ return {
             col = '50%',
           },
         },
+        format = {
+          -- Keep search at bottom
+          search_down = { view = 'cmdline', icon = ' /' },
+          search_up = { view = 'cmdline', icon = ' ?' },
+        },
       },
       lsp = {
         -- override markdown rendering for LSP hover/signature
