@@ -1,7 +1,7 @@
 return {
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
+    event = { 'InsertEnter', 'CmdlineEnter' },
     dependencies = {
       {
         'L3MON4D3/LuaSnip',
@@ -16,6 +16,8 @@ return {
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-nvim-lsp-signature-help',
+      'hrsh7th/cmp-cmdline', -- cmdline completion
+      'hrsh7th/cmp-buffer', -- buffer words for search
     },
     config = function()
       local cmp = require 'cmp'
@@ -61,6 +63,25 @@ return {
           { name = 'nvim_lsp_signature_help' },
         },
       }
+
+      -- Cmdline completion for ':' commands
+      cmp.setup.cmdline(':', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = 'path' },
+        }, {
+          { name = 'cmdline' },
+        }),
+        matching = { disallow_symbol_nonprefix_matching = false },
+      })
+
+      -- Cmdline completion for '/' search
+      cmp.setup.cmdline('/', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = 'buffer' },
+        },
+      })
     end,
   },
 }
