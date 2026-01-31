@@ -1,5 +1,27 @@
 -- Productivity plugins: search/replace, undo, file marks, UI, notes, refactoring
 return {
+  -- legendary: Searchable palette for keymaps, commands, autocmds
+  {
+    'mrjones2014/legendary.nvim',
+    priority = 10000, -- load before other plugins so they can register with legendary
+    lazy = false,
+    dependencies = { 'kkharji/sqlite.lua' }, -- for frecency sorting
+    keys = {
+      { '<leader>P', '<cmd>Legendary<cr>', desc = 'Command [P]alette (Legendary)' },
+      { '<leader>?', '<cmd>Legendary keymaps<cr>', desc = 'Search all keymaps' },
+    },
+    opts = {
+      extensions = {
+        lazy_nvim = true, -- auto-load keymaps from lazy.nvim
+        which_key = {
+          auto_register = true, -- auto-register which-key.nvim tables
+        },
+      },
+      -- Group keymaps by mode
+      col_separator_char = '│',
+    },
+  },
+
   -- grug-far: Fast search and replace across files
   {
     'MagicDuck/grug-far.nvim',

@@ -86,6 +86,7 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 - **[noice.nvim](https://github.com/folke/noice.nvim)** - Modern UI for cmdline, messages, notifications
 - **[neorg](https://github.com/nvim-neorg/neorg)** - Org-mode for Neovim (notes, todos)
 - **[refactoring.nvim](https://github.com/ThePrimeagen/refactoring.nvim)** - Extract function/variable, inline, etc.
+- **[legendary.nvim](https://github.com/mrjones2014/legendary.nvim)** - Searchable palette for keymaps, commands, autocmds
 
 ### AI/Productivity
 - **[opencode.nvim](https://github.com/NickvanDyke/opencode.nvim)** - AI code assistant
@@ -226,6 +227,13 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<leader>qS` | Select session |
 | `<leader>ql` | Restore last session |
 | `<leader>qd` | Don't save current session |
+
+### Command Palette (legendary)
+
+| Key | Action |
+|-----|--------|
+| `<leader>P` | Open command palette (keymaps + commands) |
+| `<leader>?` | Search all keymaps |
 
 ### Search & Replace (grug-far)
 
