@@ -110,8 +110,8 @@ return {
         matching = { disallow_symbol_nonprefix_matching = false },
       })
 
-      -- Cmdline completion for '/' search
-      cmp.setup.cmdline('/', {
+      -- Cmdline completion for '/' and '?' search
+      cmp.setup.cmdline({ '/', '?' }, {
         mapping = cmdline_mappings,
         sources = {
           { name = 'buffer' },

@@ -274,12 +274,13 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<C-e>` | Dismiss completion menu |
 | `<CR>` | Execute command |
 
-**`/` and `?` search** uses the native bottom command line (full vim history and behavior):
+**`/` and `?` search** uses the same centered popup with buffer word completion:
 
 | Key | Action |
 |-----|--------|
-| `<Up>` / `<Down>` | Browse search history (filters by what you've typed) |
+| `<Up>` / `<Down>` | Browse search history (or navigate completion menu if open) |
 | `<Tab>` / `<S-Tab>` | Navigate buffer word completions |
+| `<C-e>` | Dismiss completion menu |
 | `<CR>` | Execute search |
 
 ### Noice (Notifications)

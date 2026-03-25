@@ -143,9 +143,11 @@ return {
             col = '50%',
           },
         },
-        -- Search (/ and ?) uses native bottom cmdline via bottom_search preset.
-        -- This preserves Up/Down history browsing and native completion behavior.
-        -- Only : commands use the centered popup.
+        format = {
+          -- Search uses same centered popup style as commands
+          search_down = { view = 'cmdline_popup', icon = ' ' },
+          search_up = { view = 'cmdline_popup', icon = ' ' },
+        },
       },
       lsp = {
         -- override markdown rendering for LSP hover/signature
@@ -160,7 +162,7 @@ return {
         },
       },
       presets = {
-        bottom_search = true, -- use classic bottom cmdline for search (native history with Up/Down)
+        bottom_search = false, -- search uses centered popup (same as commands)
         command_palette = true, -- position cmdline and popupmenu together
         long_message_to_split = true, -- long messages go to split
         inc_rename = false, -- no input dialog for inc-rename
