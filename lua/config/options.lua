@@ -16,18 +16,19 @@ vim.opt.number = true
 -- vim.opt.relativenumber = true
 
 -- Enable relative line numbers in visual mode
-vim.api.nvim_create_autocmd('ModeChanged', {
-  pattern = '*:[vV\x16]*', -- Entering visual, visual-line, or visual-block
-  callback = function()
-    vim.opt_local.relativenumber = true
-  end,
-})
-vim.api.nvim_create_autocmd('ModeChanged', {
-  pattern = '[vV\x16]*:*', -- Leaving visual modes
-  callback = function()
-    vim.opt_local.relativenumber = false
-  end,
-})
+vim.opt.relativenumber = true
+-- vim.api.nvim_create_autocmd('ModeChanged', {
+--   pattern = '*:[vV\x16]*', -- Entering visual, visual-line, or visual-block
+--   callback = function()
+--     vim.opt_local.relativenumber = true
+--   end,
+-- })
+-- vim.api.nvim_create_autocmd('ModeChanged', {
+--   pattern = '[vV\x16]*:*', -- Leaving visual modes
+--   callback = function()
+--     vim.opt_local.relativenumber = false
+--   end,
+-- })
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -114,7 +115,7 @@ vim.opt.foldenable = true
 vim.opt.foldlevel = 3
 vim.opt.foldlevelstart = 2
 vim.opt.foldnestmax = 6
-vim.opt.foldminlines = 1
+vim.opt.foldminlines = 4
 vim.opt.foldopen:append 'search' -- open when search lands inside
 
 -- Gutter & symbols

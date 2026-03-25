@@ -127,6 +127,9 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<Esc>` | Clear search highlights | Normal |
 | `<leader>wc` | Close tab/window | Normal |
 | `<C-h/j/k/l>` | Navigate windows | Normal |
+| `<C-Left/Right/Up/Down>` | Navigate windows (arrow keys) | Normal |
+| `<C-S-Left>` / `<C-S-Right>` | Previous/next tab | Normal |
+| `<C-w>z` or `<leader>z` | Toggle zoom current split | Normal |
 | `<Esc><Esc>` | Exit terminal mode | Terminal |
 
 ### File Explorer (nvim-tree)
@@ -258,7 +261,28 @@ A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and
 | `<leader>hp` | Previous harpoon file |
 | `<leader>hn` | Next harpoon file |
 
-### Noice (UI)
+### Command Line & Search (noice.nvim)
+
+**`:` commands** use a centered floating popup with autocompletion:
+
+| Key | Action |
+|-----|--------|
+| `<Up>` / `<Down>` | Browse command history (or navigate completion menu if open) |
+| `<Tab>` / `<S-Tab>` | Navigate completion suggestions |
+| `<C-n>` / `<C-p>` | Navigate completion suggestions |
+| `<C-y>` | Confirm completion selection |
+| `<C-e>` | Dismiss completion menu |
+| `<CR>` | Execute command |
+
+**`/` and `?` search** uses the native bottom command line (full vim history and behavior):
+
+| Key | Action |
+|-----|--------|
+| `<Up>` / `<Down>` | Browse search history (filters by what you've typed) |
+| `<Tab>` / `<S-Tab>` | Navigate buffer word completions |
+| `<CR>` | Execute search |
+
+### Noice (Notifications)
 
 | Key | Action |
 |-----|--------|
@@ -685,7 +709,7 @@ Based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) with exten
 
 ---
 
-**Last Updated**: January 2026
+**Last Updated**: February 2026
 
 See [PERFORMANCE.md](PERFORMANCE.md) for detailed guide on handling large files (especially multi-GB log files).
 
@@ -701,3 +725,17 @@ See [PERFORMANCE.md](PERFORMANCE.md) for detailed guide on handling large files 
 If you see "Client stylua quit with exit code 2" errors, this is harmless. Stylua is a formatter (used via conform.nvim), not an LSP server. The error occurs when Mason tries to auto-configure it as an LSP. Formatting still works correctly via `<leader>f`.
 
 To silence these errors, the stylua LSP is disabled in the configuration.
+
+### LSP and Lazygit/Diffview
+LSP clients are automatically detached from diff/git/fugitive buffers to prevent
+diagnostic noise when using `<leader>gg` (lazygit), `<leader>gd` (diffview), etc.
+Terminal buffers also have diagnostics disabled automatically.
+
+### Message Noise
+noice.nvim is configured to suppress common noisy messages:
+- "written" messages (file save confirmations)
+- "search hit TOP/BOTTOM" wrapping indicators
+- "No information available" from LSP hover on non-symbol locations
+- "Already at oldest/newest change" undo boundary messages
+- LSP client exit code notifications
+- LSP progress is handled by fidget.nvim (noice LSP progress is disabled to avoid duplicates)

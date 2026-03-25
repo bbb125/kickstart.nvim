@@ -44,8 +44,14 @@ return {
       cmake_soft_link_compile_commands = true,
       -- Don't regenerate compile_commands via LSP (we use the symlink)
       cmake_compile_commands_from_lsp = false,
-      -- Generate compile_commands.json during configure
-      cmake_generate_options = { '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON' },
+      -- Generate compile_commands.json during configure, disable colors for quickfix parsing
+      cmake_generate_options = {
+        '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+        '-DCMAKE_COLOR_DIAGNOSTICS=OFF', -- CMake 3.24+
+        -- Disable compiler colored output for both clang and gcc
+        '-DCMAKE_CXX_FLAGS=-fno-color-diagnostics -fno-diagnostics-color',
+        '-DCMAKE_C_FLAGS=-fno-color-diagnostics -fno-diagnostics-color',
+      },
       cmake_regenerate_on_save = false, -- Don't auto-regenerate (Conan might need special handling)
       cmake_build_options = {},
       -- Executor for running cmake commands
@@ -68,15 +74,20 @@ return {
           auto_scroll = true,
         },
       },
-      -- Notifications
+      -- Notifications (disabled - can hang after build completes)
       cmake_notifications = {
-        runner = { enabled = true },
-        executor = { enabled = true },
-        spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
-        refresh_rate_ms = 100,
+        runner = { enabled = false },
+        executor = { enabled = false },
       },
     },
     config = function(_, opts)
+      -- Disable colored output for proper quickfix error parsing
+      vim.env.NO_COLOR = '1'
+      vim.env.CLICOLOR = '0'
+      vim.env.CLICOLOR_FORCE = '0'
+      vim.env.GCC_COLORS = ''
+      vim.env.CMAKE_COLOR_DIAGNOSTICS = 'OFF'
+
       require('cmake-tools').setup(opts)
 
       -- Auto-refresh clangd when compile_commands.json changes

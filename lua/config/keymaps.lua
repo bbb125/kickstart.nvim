@@ -28,12 +28,38 @@ vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
+--  Use CTRL+<hjkl> or CTRL+arrows to switch between windows
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-Left>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<C-Right>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<C-Down>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<C-Up>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Tab navigation with Ctrl+Shift+Left/Right
+vim.keymap.set('n', '<C-S-Left>', '<cmd>tabprevious<CR>', { desc = 'Previous tab' })
+vim.keymap.set('n', '<C-S-Right>', '<cmd>tabnext<CR>', { desc = 'Next tab' })
+
+-- Toggle zoom current split (maximize/restore)
+vim.keymap.set('n', '<C-w>z', function()
+  if vim.t.zoomed then
+    vim.cmd 'tabclose'
+  else
+    vim.cmd 'tab split'
+    vim.t.zoomed = true
+  end
+end, { desc = 'Toggle zoom current split' })
+vim.keymap.set('n', '<leader>z', function()
+  if vim.t.zoomed then
+    vim.cmd 'tabclose'
+  else
+    vim.cmd 'tab split'
+    vim.t.zoomed = true
+  end
+end, { desc = '[Z]oom toggle current split' })
 
 -- Fold keymaps
 vim.keymap.set('n', 'zp', function()

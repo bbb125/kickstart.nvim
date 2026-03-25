@@ -64,17 +64,39 @@ return {
         },
       }
 
-      -- Cmdline mappings with arrow key support
+      -- Cmdline mappings for : commands (centered popup via noice.nvim)
+      -- Up/Down: browse command history when menu is closed, navigate menu when open
+      -- Tab/S-Tab: navigate completion menu
+      -- <C-y>: confirm selection
+      -- <C-e>: abort completion
+      -- <CR>: execute command (not mapped here - handled natively)
       local cmdline_mappings = {
         ['<C-n>'] = { c = cmp.mapping.select_next_item() },
         ['<C-p>'] = { c = cmp.mapping.select_prev_item() },
-        ['<Down>'] = { c = cmp.mapping.select_next_item() },
-        ['<Up>'] = { c = cmp.mapping.select_prev_item() },
         ['<Tab>'] = { c = cmp.mapping.select_next_item() },
         ['<S-Tab>'] = { c = cmp.mapping.select_prev_item() },
         ['<C-y>'] = { c = cmp.mapping.confirm { select = true } },
-        ['<CR>'] = { c = cmp.mapping.confirm { select = false } },
         ['<C-e>'] = { c = cmp.mapping.abort() },
+        -- Up/Down navigate history when completion menu is closed,
+        -- or navigate items when menu is open (like native vim behavior)
+        ['<Up>'] = {
+          c = function()
+            if cmp.visible() then
+              cmp.select_prev_item()
+            else
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up>', true, false, true), 'n', false)
+            end
+          end,
+        },
+        ['<Down>'] = {
+          c = function()
+            if cmp.visible() then
+              cmp.select_next_item()
+            else
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Down>', true, false, true), 'n', false)
+            end
+          end,
+        },
       }
 
       -- Cmdline completion for ':' commands

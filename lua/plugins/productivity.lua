@@ -139,15 +139,13 @@ return {
         view = 'cmdline_popup',
         opts = {
           position = {
-            row = '30%', -- 30% from top = 70% up from bottom
+            row = '30%',
             col = '50%',
           },
         },
-        format = {
-          -- Keep search at bottom
-          search_down = { view = 'cmdline', icon = ' /' },
-          search_up = { view = 'cmdline', icon = ' ?' },
-        },
+        -- Search (/ and ?) uses native bottom cmdline via bottom_search preset.
+        -- This preserves Up/Down history browsing and native completion behavior.
+        -- Only : commands use the centered popup.
       },
       lsp = {
         -- override markdown rendering for LSP hover/signature
@@ -156,9 +154,13 @@ return {
           ['vim.lsp.util.stylize_markdown'] = true,
           ['cmp.entry.get_documentation'] = true,
         },
+        -- Suppress inline LSP progress (fidget.nvim handles this)
+        progress = {
+          enabled = false,
+        },
       },
       presets = {
-        bottom_search = true, -- use classic bottom cmdline for search
+        bottom_search = true, -- use classic bottom cmdline for search (native history with Up/Down)
         command_palette = true, -- position cmdline and popupmenu together
         long_message_to_split = true, -- long messages go to split
         inc_rename = false, -- no input dialog for inc-rename
@@ -173,6 +175,56 @@ return {
             find = 'written',
           },
           opts = { skip = true },
+        },
+        -- Hide search hit TOP/BOTTOM messages
+        {
+          filter = {
+            event = 'msg_show',
+            kind = 'wmsg',
+            find = 'search hit',
+          },
+          opts = { skip = true },
+        },
+        -- Hide "Pattern not found" (show briefly in mini view instead)
+        {
+          filter = {
+            event = 'msg_show',
+            find = 'Pattern not found',
+          },
+          view = 'mini',
+        },
+        -- Hide "No information available" from LSP hover
+        {
+          filter = {
+            event = 'notify',
+            find = 'No information available',
+          },
+          opts = { skip = true },
+        },
+        -- Hide "already at oldest/newest change"
+        {
+          filter = {
+            event = 'msg_show',
+            find = 'Already at %a+ change',
+          },
+          opts = { skip = true },
+        },
+        -- Suppress LSP messages about clients exiting/attaching (noisy with lazygit/diff)
+        {
+          filter = {
+            event = 'notify',
+            find = 'exit code',
+          },
+          opts = { skip = true },
+        },
+        -- Route long LSP messages to split instead of flooding screen
+        {
+          filter = {
+            event = 'lsp',
+            kind = 'message',
+            min_height = 5,
+          },
+          view = 'split',
         },
       },
     },
