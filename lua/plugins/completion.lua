@@ -114,7 +114,13 @@ return {
       cmp.setup.cmdline({ '/', '?' }, {
         mapping = cmdline_mappings,
         sources = {
-          { name = 'buffer' },
+          {
+            name = 'buffer',
+            option = {
+              -- Search completion otherwise indexes the whole log in the background.
+              get_bufnrs = require('config.large-file-search').completion_buffers,
+            },
+          },
         },
       })
     end,
