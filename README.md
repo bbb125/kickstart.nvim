@@ -1,3 +1,5 @@
+> September 2026: see [CONFIG-AUDIT.md](CONFIG-AUDIT.md) for the current architecture, repaired API mismatches, Markdown controls, and tested upgrade choices. Older benchmark numbers below are historical.
+
 # Modern Neovim Configuration
 
 A modern, modular Neovim configuration optimized for C++, Python, Rust, Lua, and general development.

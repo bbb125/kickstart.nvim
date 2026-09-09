@@ -1,3 +1,5 @@
+> Historical tuning notes. See [CONFIG-AUDIT.md](CONFIG-AUDIT.md) for current behavior. The old deferred-loading module was removed; it did not skip configuration or make file loading asynchronous.
+
 # Large File Performance Guide
 
 ## Your File Analysis
