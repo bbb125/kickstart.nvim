@@ -6,17 +6,17 @@ return {
     opts = {
       -- Enable various snacks features
       bigfile = { enabled = false }, -- We use bigfile.nvim instead
-      notifier = { enabled = true }, -- Better notifications
-      quickfile = { enabled = true }, -- Fast file operations
+      notifier = { enabled = false }, -- Noice + nvim-notify own notifications
+      quickfile = { enabled = false }, -- Treesitter setup owns guarded highlighting
       statuscolumn = { enabled = false }, -- We use default statuscolumn
-      words = { enabled = true }, -- Highlight word under cursor
+      words = { enabled = false }, -- LspAttach owns document highlights
       styles = {
         notification = {
           wo = { wrap = true },
         },
       },
       -- Required for opencode
-      input = {},
+      input = { enabled = true },
       picker = {},
       terminal = {},
     },
@@ -24,7 +24,7 @@ return {
       {
         '<leader>un',
         function()
-          Snacks.notifier.hide()
+          require('notify').dismiss { silent = true, pending = true }
         end,
         desc = 'Dismiss All Notifications',
       },
@@ -38,7 +38,7 @@ return {
       {
         '<leader>gg',
         function()
-          Snacks.lazygit()
+          Snacks.lazygit { cwd = require('config.git').root() }
         end,
         desc = 'Lazygit',
       },
@@ -59,14 +59,14 @@ return {
       {
         '<leader>gf',
         function()
-          Snacks.lazygit.log_file()
+          Snacks.lazygit.log_file { cwd = require('config.git').root() }
         end,
         desc = 'Lazygit Current File History',
       },
       {
         '<leader>gl',
         function()
-          Snacks.lazygit.log()
+          Snacks.lazygit.log { cwd = require('config.git').root() }
         end,
         desc = 'Lazygit Log (cwd)',
       },
@@ -105,7 +105,6 @@ return {
           _G.bt = function()
             Snacks.debug.backtrace()
           end
-          vim.print = _G.dd -- Override print to use snacks for compat
         end,
       })
     end,

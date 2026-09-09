@@ -86,12 +86,6 @@ return {
     },
   },
 
-  { -- Dressing: Better UI for vim.ui.select and vim.ui.input
-    'stevearc/dressing.nvim',
-    event = 'VeryLazy',
-    opts = {},
-  },
-
   { -- Treesitter Context: Shows code context at the top
     'nvim-treesitter/nvim-treesitter-context',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
@@ -99,6 +93,9 @@ return {
       enable = true,
       max_lines = 3,
       min_window_height = 20,
+      on_attach = function(buf)
+        return require('config.buffer-policy').can_parse(buf)
+      end,
     },
     keys = {
       {

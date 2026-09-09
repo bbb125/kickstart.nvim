@@ -107,7 +107,7 @@ return {
         desc = 'Harpoon file 4',
       },
       {
-        '<leader>hp',
+        '<leader>hP',
         function()
           require('harpoon'):list():prev()
         end,
@@ -211,14 +211,6 @@ return {
           },
           opts = { skip = true },
         },
-        -- Suppress LSP messages about clients exiting/attaching (noisy with lazygit/diff)
-        {
-          filter = {
-            event = 'notify',
-            find = 'exit code',
-          },
-          opts = { skip = true },
-        },
         -- Route long LSP messages to split instead of flooding screen
         {
           filter = {
@@ -258,7 +250,8 @@ return {
   -- neorg: Org-mode for Neovim (notes, todos, documents)
   {
     'nvim-neorg/neorg',
-    lazy = false, -- needs to load early for treesitter
+    ft = 'norg',
+    cmd = 'Neorg',
     version = '*', -- use latest stable
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
