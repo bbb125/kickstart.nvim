@@ -48,9 +48,6 @@ return {
       cmake_generate_options = {
         '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
         '-DCMAKE_COLOR_DIAGNOSTICS=OFF', -- CMake 3.24+
-        -- Disable compiler colored output for both clang and gcc
-        '-DCMAKE_CXX_FLAGS=-fno-color-diagnostics -fno-diagnostics-color',
-        '-DCMAKE_C_FLAGS=-fno-color-diagnostics -fno-diagnostics-color',
       },
       cmake_regenerate_on_save = false, -- Don't auto-regenerate (Conan might need special handling)
       cmake_build_options = {},
@@ -98,7 +95,7 @@ return {
           local clients = vim.lsp.get_clients { name = 'clangd' }
           for _, client in ipairs(clients) do
             vim.notify('Restarting clangd to pick up new compile_commands.json', vim.log.levels.INFO)
-            vim.cmd('LspRestart clangd')
+            vim.cmd 'LspRestart clangd'
             break
           end
         end,

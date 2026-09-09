@@ -3,8 +3,8 @@ return {
     'mrcjkb/rustaceanvim',
     version = '^5',
     lazy = false, -- Load at startup for Rust files
-    ft = { 'rust' },
-    config = function()
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    init = function()
       vim.g.rustaceanvim = {
         -- Plugin configuration
         tools = {
@@ -92,14 +92,8 @@ return {
             },
           },
         },
-        -- DAP configuration
-        dap = {
-          adapter = {
-            type = 'executable',
-            command = 'lldb-vscode',
-            name = 'rt_lldb',
-          },
-        },
+        -- Use rustaceanvim's debugger discovery (lldb-dap / codelldb).
+        dap = {},
       }
     end,
   },
@@ -155,18 +149,11 @@ return {
         pattern = 'Cargo.toml',
         callback = function()
           local cmp = require 'cmp'
-          local config = cmp.get_config()
-          table.insert(config.sources, { name = 'crates' })
-          cmp.setup(config)
+          cmp.setup.buffer {
+            sources = cmp.config.sources({ { name = 'crates' } }, cmp.get_config().sources),
+          }
         end,
       })
     end,
-  },
-
-  { -- Rust crate documentation
-    'mrcjkb/rustaceanvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-    },
   },
 }

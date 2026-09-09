@@ -1,7 +1,7 @@
 return {
   { -- Virtual environment selector
     'linux-cultist/venv-selector.nvim',
-    branch = 'regexp',
+    branch = 'main',
     dependencies = {
       'neovim/nvim-lspconfig',
       'nvim-telescope/telescope.nvim',
@@ -10,16 +10,15 @@ return {
     ft = 'python',
     keys = {
       { '<leader>pv', '<cmd>VenvSelect<cr>', desc = '[P]ython [V]env Select' },
-      { '<leader>pc', '<cmd>VenvSelectCached<cr>', desc = '[P]ython [C]ached Venv' },
+      {
+        '<leader>pc',
+        function()
+          require('venv-selector.cached_venv').retrieve()
+        end,
+        desc = '[P]ython [C]ached Venv',
+      },
     },
-    opts = {
-      auto_refresh = true,
-      search_venv_managers = true,
-      search_workspace = true,
-      search = true,
-      name = { 'venv', '.venv', 'env', '.env' },
-      fd_binary_name = 'fd',
-    },
+    opts = { options = { picker = 'telescope', notify_user_on_venv_activation = true } },
   },
 
   { -- Python test runner
@@ -107,8 +106,8 @@ return {
       'rcarriga/nvim-dap-ui',
     },
     config = function()
-      local path = require('mason-registry').get_package('debugpy'):get_install_path()
-      require('dap-python').setup(path .. '/venv/bin/python')
+      local python = vim.fn.stdpath 'data' .. '/mason/packages/debugpy/venv/' .. (vim.fn.has 'win32' == 1 and 'Scripts/python.exe' or 'bin/python')
+      require('dap-python').setup(python)
 
       -- Python debug keymaps
       vim.api.nvim_create_autocmd('FileType', {
