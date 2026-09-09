@@ -58,8 +58,8 @@ vim.opt.breakindent = true
 -- Save undo history
 vim.opt.undofile = true
 
--- Disable swap files (we have undofile for crash recovery)
--- This prevents swap file conflicts when LSP jumps to definitions
+-- Keep the existing no-swap preference. Persistent undo saves edit history;
+-- it does not recover unsaved edits after a crash.
 vim.opt.swapfile = false
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
@@ -106,8 +106,8 @@ vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.smartindent = true
 
--- Use Tree-sitter as the folding engine
-vim.opt.foldmethod = 'expr'
+-- Enable expression folds only in supported, ordinary code buffers.
+vim.opt.foldmethod = 'manual'
 vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
 -- Reasonable default visibility

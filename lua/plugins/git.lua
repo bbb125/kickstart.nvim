@@ -2,6 +2,7 @@ return {
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
+      on_attach = require('kickstart.plugins.gitsigns')[1].opts.on_attach,
       signs = {
         add = { text = '+' },
         change = { text = '~' },
@@ -15,10 +16,22 @@ return {
   { -- Side-by-side diff view for commits, file history, and merge conflicts
     'sindrets/diffview.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },
+    cmd = { 'DiffviewOpen', 'DiffviewFileHistory', 'DiffviewClose' },
     keys = {
-      { '<leader>gd', '<cmd>DiffviewOpen<cr>', desc = 'Diff view (working changes)' },
-      { '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', desc = 'File history (current file)' },
+      {
+        '<leader>gd',
+        function()
+          require('config.git').open_diff()
+        end,
+        desc = 'Diff view (working changes)',
+      },
+      {
+        '<leader>gh',
+        function()
+          require('config.git').file_history()
+        end,
+        desc = 'File history (current file)',
+      },
       { '<leader>gH', '<cmd>DiffviewFileHistory<cr>', desc = 'File history (all)' },
       { '<leader>gq', '<cmd>DiffviewClose<cr>', desc = 'Close diff view' },
       {
@@ -30,12 +43,16 @@ return {
               map('i', '<CR>', function(prompt_bufnr)
                 local selection = require('telescope.actions.state').get_selected_entry()
                 actions.close(prompt_bufnr)
-                vim.cmd('DiffviewOpen ' .. selection.value .. '^!')
+                if selection then
+                  require('config.git').open_diff(selection.value .. '^!')
+                end
               end)
               map('n', '<CR>', function(prompt_bufnr)
                 local selection = require('telescope.actions.state').get_selected_entry()
                 actions.close(prompt_bufnr)
-                vim.cmd('DiffviewOpen ' .. selection.value .. '^!')
+                if selection then
+                  require('config.git').open_diff(selection.value .. '^!')
+                end
               end)
               return true
             end,

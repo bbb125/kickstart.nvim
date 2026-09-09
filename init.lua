@@ -11,5 +11,4 @@
 require 'config.options'
 require 'config.keymaps'
 require 'config.autocmds'
-require 'config.performance'
 require 'config.lazy'

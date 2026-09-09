@@ -12,8 +12,8 @@ return {
   { -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
-      { 'williamboman/mason.nvim', opts = {} },
-      'williamboman/mason-lspconfig.nvim',
+      { 'mason-org/mason.nvim', opts = {} },
+      'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
       { 'j-hui/fidget.nvim', opts = {} },
       'hrsh7th/cmp-nvim-lsp',
@@ -22,6 +22,9 @@ return {
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
+          if not require('config.buffer-policy').can_parse(event.buf) then
+            return
+          end
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
@@ -45,19 +48,21 @@ return {
           map('<leader>lS', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace symbols')
           map('<leader>ln', vim.lsp.buf.rename, 'Rename')
           map('<leader>la', vim.lsp.buf.code_action, 'Code action', { 'n', 'x' })
-          map('<leader>lR', '<cmd>LspRestart<cr>', 'Restart LSP')
-
-          local function client_supports_method(client, method, bufnr)
-            if vim.fn.has 'nvim-0.11' == 1 then
-              return client:supports_method(method, bufnr)
-            else
-              return client.supports_method(method, { bufnr = bufnr })
+          map('<leader>lR', function()
+            for _, client in ipairs(vim.lsp.get_clients { bufnr = event.buf }) do
+              vim.lsp.enable(client.name, false)
+              vim.lsp.enable(client.name)
             end
-          end
+          end, 'Restart LSP')
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+          if client and client.name == 'harper_ls' then
+            -- Keep prose readable; diagnostics remain available in signs and floats.
+            vim.diagnostic.config({ virtual_text = false }, vim.lsp.diagnostic.get_namespace(client.id))
+          end
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
+            vim.api.nvim_clear_autocmds { group = highlight_augroup, buffer = event.buf }
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
               group = highlight_augroup,
@@ -71,7 +76,8 @@ return {
             })
 
             vim.api.nvim_create_autocmd('LspDetach', {
-              group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
+              group = highlight_augroup,
+              buffer = event.buf,
               callback = function(event2)
                 vim.lsp.buf.clear_references()
                 vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
@@ -79,9 +85,9 @@ return {
             })
           end
 
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map('<leader>lh', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }, { bufnr = event.buf })
             end, 'Toggle inlay hints')
           end
         end,
@@ -134,8 +140,11 @@ return {
             fallbackFlags = { '-std=c++20' },
           },
           -- Function to find compile_commands.json in common locations
-          on_new_config = function(new_config, root_dir)
-            local util = require 'lspconfig.util'
+          before_init = function(_, new_config)
+            local root_dir = new_config.root_dir
+            if not root_dir then
+              return
+            end
             -- Common build directories to search (in order of preference)
             local build_dirs = {
               root_dir, -- Project root (cmake-tools creates symlink here)
@@ -234,61 +243,28 @@ return {
       vim.list_extend(ensure_installed, {
         'stylua',
         -- Python tools
-        'black', -- Formatter
-        'isort', -- Import sorter
         'debugpy', -- Python debugger
         'mypy', -- Type checker
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      -- Configure first, then enable: Mason v2 no longer calls setup handlers.
+      local policy = require 'config.buffer-policy'
+      for name, server in pairs(servers) do
+        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+        vim.lsp.config(name, server)
+        local resolved = vim.lsp.config[name]
+        vim.lsp.config(name, { root_dir = policy.lsp_root(resolved) })
+      end
       require('mason-lspconfig').setup {
         ensure_installed = {},
-        automatic_installation = false,
-        automatic_enable = true,
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
+        automatic_enable = vim.tbl_keys(servers),
       }
-
-      -- Disable stylua LSP (it's a formatter, not an LSP server)
-      vim.lsp.enable('stylua', false)
-
-      -- Manually set up servers skipped from Mason (using system binaries)
-      -- Map server names to their filetypes
-      local server_filetypes = {
-        clangd = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
-        ocaml_ls = { 'ocaml', 'menhir', 'ocamlinterface', 'ocamllex', 'reason', 'dune' },
-      }
-
-      for _, server_name in ipairs(skip_mason) do
-        local cmd_name = server_name:gsub('_', '-')
-        if servers[server_name] and vim.fn.executable(cmd_name) == 1 then
-          local server = servers[server_name] or {}
-          server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-          require('lspconfig')[server_name].setup(server)
-
-          -- Auto-start on matching filetypes
-          local filetypes = server_filetypes[server_name]
-          if filetypes then
-            vim.api.nvim_create_autocmd('FileType', {
-              pattern = filetypes,
-              group = vim.api.nvim_create_augroup('lsp_autostart_' .. server_name, { clear = true }),
-              callback = function()
-                vim.cmd('LspStart ' .. server_name)
-              end,
-            })
-            -- Also start immediately if current buffer matches
-            local current_ft = vim.bo.filetype
-            if vim.tbl_contains(filetypes, current_ft) then
-              vim.schedule(function()
-                vim.cmd('LspStart ' .. server_name)
-              end)
-            end
-          end
+      -- System tools need explicit activation; use their actual executable names.
+      for name in pairs(servers) do
+        local cmd = vim.lsp.config[name].cmd
+        if type(cmd) == 'table' and vim.fn.executable(cmd[1]) == 1 then
+          vim.lsp.enable(name)
         end
       end
     end,

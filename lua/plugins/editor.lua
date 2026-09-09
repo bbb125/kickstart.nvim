@@ -1,9 +1,14 @@
 return {
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    branch = 'master', -- Compatibility branch for Neovim 0.11; main requires 0.12.
+    lazy = false,
     build = ':TSUpdate',
     config = function()
-      require('nvim-treesitter').setup({
+      local parser_dir = vim.fn.stdpath 'data' .. '/site'
+      vim.opt.runtimepath:prepend(parser_dir)
+      require('nvim-treesitter.configs').setup {
+        parser_install_dir = parser_dir,
         ensure_installed = {
           'bash',
           'c',
@@ -21,11 +26,18 @@ return {
           'vim',
           'vimdoc',
         },
-        auto_install = true,
-      })
+        auto_install = false,
+        highlight = {
+          enable = true,
+          disable = function(_, buf)
+            return not require('config.buffer-policy').can_parse(buf)
+          end,
+        },
+      }
 
       -- Treat files with filetype "c" as C++ for Tree-sitter
       vim.treesitter.language.register('cpp', 'c')
+      require('config.buffer-policy').setup_folds()
     end,
   },
   { -- Collection of various small independent plugins/modules
@@ -45,8 +57,7 @@ return {
       -- Search navigation and highlights stay enabled.
       local original_searchcount = statusline.section_searchcount
       statusline.section_searchcount = function(args)
-        local lines = vim.api.nvim_buf_line_count(0)
-        if vim.b.bigfile_detected == 1 or vim.api.nvim_buf_get_offset(0, lines) >= 2 * 1024 * 1024 then
+        if require('config.large-file-search').is_large() then
           return ''
         end
         return original_searchcount(args)
@@ -131,8 +142,8 @@ return {
           if size > 100 * 1024 * 1024 or size == -2 then
             -- Avoid hashing the entire huge log to look up persistent undo.
             vim.opt_local.undofile = false
-            vim.cmd 'syntax off'
-            vim.cmd 'filetype off'
+            vim.b.bigfile_detected = 1
+            vim.bo.syntax = ''
             vim.opt_local.foldmethod = 'manual'
             vim.opt_local.foldenable = false
             vim.opt_local.spell = false
